@@ -12,7 +12,7 @@
 #import "PhotoAlbumController.h"
 #import "VideoCollectionController.h"
 #import "SourceController.h"
-#import "WebController.h"
+#import "WebBrowserView.h"
 
 @interface MainController ()
 @end
@@ -147,10 +147,8 @@
             [self.navigationController pushViewController:vc animated:YES];
             break;
         }
-        case 4: { // Web
-            WebController *vc = [[WebController alloc] init];
-            vc.title = @"Web";
-            [self.navigationController pushViewController:vc animated:YES];
+        case 4: { // Web:直接挂到 window 显示全局网页视图(不 push 控制器)
+            [WebBrowserView showOnWindow];
             break;
         }
         default:

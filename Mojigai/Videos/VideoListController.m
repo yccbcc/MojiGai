@@ -61,7 +61,8 @@
     layout.minimumInteritemSpacing = margin;
     layout.sectionInset = UIEdgeInsetsMake(margin, margin, margin, margin);
 
-    UICollectionView *cv = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, screenW, self.view.bounds.size.height) collectionViewLayout:layout];
+    UICollectionView *cv = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+    cv.translatesAutoresizingMaskIntoConstraints = NO;
     cv.backgroundColor = UIColor.whiteColor;
     cv.dataSource = self;
     cv.delegate = self;
@@ -70,6 +71,15 @@
     [cv registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"VideoCell"];
     [self.view addSubview:cv];
     self.collectionView = cv;
+
+    // 用 Auto Layout 贴安全区,自动扣除导航栏与底部安全区,避免列表超出屏幕/回弹
+    UILayoutGuide *guide = self.view.safeAreaLayoutGuide;
+    [NSLayoutConstraint activateConstraints:@[
+        [cv.topAnchor constraintEqualToAnchor:guide.topAnchor],
+        [cv.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor],
+        [cv.leadingAnchor constraintEqualToAnchor:guide.leadingAnchor],
+        [cv.trailingAnchor constraintEqualToAnchor:guide.trailingAnchor],
+    ]];
 }
 
 #pragma mark - 事件

@@ -38,7 +38,7 @@
 		D5FFCAB1231D047800B965DA /* TSWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FFCAB0231D047800B965DA /* TSWebView.m */; };
 		MC0000000000000000000C03 /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = MC0000000000000000000C02 /* MainController.m */; };
 		SC0000000000000000000D03 /* SourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = SC0000000000000000000D02 /* SourceController.m */; };
-		WC0000000000000000000E03 /* WebController.m in Sources */ = {isa = PBXBuildFile; fileRef = WC0000000000000000000E02 /* WebController.m */; };
+		WB12000000000000000000F3 /* WebBrowserView.m in Sources */ = {isa = PBXBuildFile; fileRef = WB12000000000000000000F2 /* WebBrowserView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -122,8 +122,8 @@
 		MC0000000000000000000C02 /* MainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
 		SC0000000000000000000D01 /* SourceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SourceController.h; sourceTree = "<group>"; };
 		SC0000000000000000000D02 /* SourceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SourceController.m; sourceTree = "<group>"; };
-		WC0000000000000000000E01 /* WebController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebController.h; sourceTree = "<group>"; };
-		WC0000000000000000000E02 /* WebController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebController.m; sourceTree = "<group>"; };
+		WB12000000000000000000F1 /* WebBrowserView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebBrowserView.h; sourceTree = "<group>"; };
+		WB12000000000000000000F2 /* WebBrowserView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebBrowserView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -280,8 +280,8 @@
 				MC0000000000000000000C02 /* MainController.m */,
 				SC0000000000000000000D01 /* SourceController.h */,
 				SC0000000000000000000D02 /* SourceController.m */,
-				WC0000000000000000000E01 /* WebController.h */,
-				WC0000000000000000000E02 /* WebController.m */,
+				WB12000000000000000000F1 /* WebBrowserView.h */,
+				WB12000000000000000000F2 /* WebBrowserView.m */,
 				AC0000000000000000000B01 /* AccessControlController.h */,
 				AC0000000000000000000B02 /* AccessControlController.m */,
 				D56A12F622BB9D2C0083E2B9 /* Main.storyboard */,
@@ -494,7 +494,7 @@
 				D56A12F522BB9D2C0083E2B9 /* EditorController.m in Sources */,
 				MC0000000000000000000C03 /* MainController.m in Sources */,
 				SC0000000000000000000D03 /* SourceController.m in Sources */,
-				WC0000000000000000000E03 /* WebController.m in Sources */,
+				WB12000000000000000000F3 /* WebBrowserView.m in Sources */,
 				AC0000000000000000000B03 /* AccessControlController.m in Sources */,
 				4F9EB5AE2A9893B9007E213E /* ReadViewController.m in Sources */,
 				D53ABE752583803F006C45E1 /* ReatTxtManager.m in Sources */,

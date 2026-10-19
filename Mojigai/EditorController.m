@@ -12,6 +12,7 @@
 #import "TextReplaceManager.h"
 #import "TSToast.h"
 #import "DCFileTool.h"
+#import "WebBrowserView.h"
 
 @interface EditorController ()
 <
@@ -277,6 +278,14 @@ UIScrollViewDelegate
     }
 }
 
+#pragma mark - 内嵌网页(统一使用 window 上的全局网页视图)
+
+// 打开网页:直接显示挂到 key window 的全局 WebBrowserView(单实例,关闭再开保留原网页)
+- (void)webClick {
+    [self.view endEditing:YES];
+    [WebBrowserView showOnWindow];
+}
+
 #pragma mark - tool
 
 - (CGSize)sizeWithStr:(NSString *)str font:(UIFont *)font maxWidth:(CGFloat)width maxHeight:(CGFloat)height {
@@ -313,8 +322,8 @@ UIScrollViewDelegate
 
     // 四个功能按钮(保存/获取/导入/导出)统一等宽
     CGFloat btnW = 64;
-    // 第一行: 名称输入框(自适应宽) + 保存、获取
-    CGFloat nameW = screenW - margin * 2 - btnW * 2 - gap * 2;
+    // 第一行: 名称输入框(自适应宽) + 保存、获取、Web
+    CGFloat nameW = screenW - margin * 2 - btnW * 3 - gap * 3;
 
     UITextField *tf = [[UITextField alloc] initWithFrame:CGRectMake(margin, 0, nameW, 40)];
     tf.placeholder = @"请输入";
@@ -326,10 +335,11 @@ UIScrollViewDelegate
     [self.view addSubview:tf];
     _nameTf = tf;
 
-    // 第一行按钮: 保存、获取(toFile 已下移到第二行并更名"导出")
-    NSArray *firstRowTitles  = @[@"保存", @"获取"];
+    // 第一行按钮: 保存、获取、Web(Web 打开内嵌的网页视图)
+    NSArray *firstRowTitles  = @[@"保存", @"获取", @"Web"];
     NSArray *firstRowActions = @[NSStringFromSelector(@selector(saveClick)),
-                                 NSStringFromSelector(@selector(fetchClick))];
+                                 NSStringFromSelector(@selector(fetchClick)),
+                                 NSStringFromSelector(@selector(webClick))];
     for (NSInteger i = 0; i < firstRowTitles.count; i++) {
         SEL action = NSSelectorFromString(firstRowActions[i]);
         CGRect frame = CGRectMake(margin + nameW + gap + i * (btnW + gap), 0, btnW, 40);

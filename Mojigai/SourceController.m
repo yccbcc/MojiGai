@@ -8,7 +8,7 @@
 
 #import "SourceController.h"
 #import "ReadViewController.h"
-#import "WebController.h"
+#import "WebBrowserView.h"
 #import "DCFileTool.h"
 
 @interface SourceController ()
@@ -84,11 +84,8 @@
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     NSString *key = _mArr[indexPath.row][@"key"];
     if ([key hasPrefix:@"http"]) {
-        // http 链接(可能是文本网页或视频网页)统一交给 Web 阅读器
-        WebController *vc = [[WebController alloc] init];
-        vc.initialURLString = _mArr[indexPath.row][@"key"];
-        vc.title = key;
-        [self.navigationController pushViewController:vc animated:YES];
+        // http 链接(可能是文本网页或视频网页)统一交给全局网页视图
+        [WebBrowserView showOnWindowWithURL:_mArr[indexPath.row][@"key"]];
     } else {
         ReadViewController *vc = [[ReadViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:@{}];
         vc.row = (int)indexPath.row;
