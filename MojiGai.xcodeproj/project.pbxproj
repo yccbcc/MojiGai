@@ -19,12 +19,13 @@
 		4F9EB5D92A9893B9007E213E /* ImagePreviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9EB5D52A9893B9007E213E /* ImagePreviewController.m */; };
 		4FDC45F0307CCDA300AD3894 /* ConvertVideoFormat.m in Sources */ = {isa = PBXBuildFile; fileRef = 4FDC45EF307CCDA300AD3894 /* ConvertVideoFormat.m */; };
 		AB12000000000000000000A3 /* PhotoAlbumController.m in Sources */ = {isa = PBXBuildFile; fileRef = AB12000000000000000000A1 /* PhotoAlbumController.m */; };
+		AC0000000000000000000B03 /* AccessControlController.m in Sources */ = {isa = PBXBuildFile; fileRef = AC0000000000000000000B02 /* AccessControlController.m */; };
+		BDF2CB089B6CD997A780DF36 /* Pods_Mojigai.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88C46991F4C95F49A6E4D6DE /* Pods_Mojigai.framework */; };
 		CD12000000000000000000E1 /* VideoStore.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000D1 /* VideoStore.m */; };
 		CD12000000000000000000E2 /* VideoCollectionController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000D3 /* VideoCollectionController.m */; };
 		CD12000000000000000000E3 /* VideoListController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000D5 /* VideoListController.m */; };
 		CD12000000000000000000E4 /* VideoPreviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000D7 /* VideoPreviewController.m */; };
-		AC0000000000000000000B03 /* AccessControlController.m in Sources */ = {isa = PBXBuildFile; fileRef = AC0000000000000000000B02 /* AccessControlController.m */; };
-		BDF2CB089B6CD997A780DF36 /* Pods_Mojigai.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88C46991F4C95F49A6E4D6DE /* Pods_Mojigai.framework */; };
+		CD12000000000000000000E5 /* VideoMoveController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000DA /* VideoMoveController.m */; };
 		D53ABE752583803F006C45E1 /* ReatTxtManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D53ABE742583803F006C45E1 /* ReatTxtManager.m */; };
 		D56A12F222BB9D2C0083E2B9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A12F122BB9D2C0083E2B9 /* AppDelegate.m */; };
 		D56A12F522BB9D2C0083E2B9 /* EditorController.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A12F422BB9D2C0083E2B9 /* EditorController.m */; };
@@ -87,6 +88,8 @@
 		A1B801881E4DFED14736F81C /* Pods-Mojigai.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Mojigai.debug.xcconfig"; path = "Target Support Files/Pods-Mojigai/Pods-Mojigai.debug.xcconfig"; sourceTree = "<group>"; };
 		AB12000000000000000000A1 /* PhotoAlbumController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PhotoAlbumController.m; sourceTree = "<group>"; };
 		AB12000000000000000000A2 /* PhotoAlbumController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PhotoAlbumController.h; sourceTree = "<group>"; };
+		AC0000000000000000000B01 /* AccessControlController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AccessControlController.h; sourceTree = "<group>"; };
+		AC0000000000000000000B02 /* AccessControlController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AccessControlController.m; sourceTree = "<group>"; };
 		CD12000000000000000000D1 /* VideoStore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoStore.m; sourceTree = "<group>"; };
 		CD12000000000000000000D2 /* VideoStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoStore.h; sourceTree = "<group>"; };
 		CD12000000000000000000D3 /* VideoCollectionController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoCollectionController.m; sourceTree = "<group>"; };
@@ -95,8 +98,8 @@
 		CD12000000000000000000D6 /* VideoListController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoListController.h; sourceTree = "<group>"; };
 		CD12000000000000000000D7 /* VideoPreviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoPreviewController.m; sourceTree = "<group>"; };
 		CD12000000000000000000D8 /* VideoPreviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoPreviewController.h; sourceTree = "<group>"; };
-		AC0000000000000000000B01 /* AccessControlController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AccessControlController.h; sourceTree = "<group>"; };
-		AC0000000000000000000B02 /* AccessControlController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AccessControlController.m; sourceTree = "<group>"; };
+		CD12000000000000000000D9 /* VideoMoveController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoMoveController.h; sourceTree = "<group>"; };
+		CD12000000000000000000DA /* VideoMoveController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoMoveController.m; sourceTree = "<group>"; };
 		D53ABE732583803F006C45E1 /* ReatTxtManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReatTxtManager.h; sourceTree = "<group>"; };
 		D53ABE742583803F006C45E1 /* ReatTxtManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReatTxtManager.m; sourceTree = "<group>"; };
 		D56A12ED22BB9D2C0083E2B9 /* Mojigai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mojigai.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -186,6 +189,15 @@
 			path = Image;
 			sourceTree = "<group>";
 		};
+		B5D5E349A1B56C591D0FA94F /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				A1B801881E4DFED14736F81C /* Pods-Mojigai.debug.xcconfig */,
+				6BF792DADDAA4F30713DA454 /* Pods-Mojigai.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		CD12000000000000000000A0 /* Videos */ = {
 			isa = PBXGroup;
 			children = (
@@ -195,17 +207,10 @@
 				CD12000000000000000000D5 /* VideoListController.m */,
 				CD12000000000000000000D8 /* VideoPreviewController.h */,
 				CD12000000000000000000D7 /* VideoPreviewController.m */,
+				CD12000000000000000000D9 /* VideoMoveController.h */,
+				CD12000000000000000000DA /* VideoMoveController.m */,
 			);
 			path = Videos;
-			sourceTree = "<group>";
-		};
-		B5D5E349A1B56C591D0FA94F /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				A1B801881E4DFED14736F81C /* Pods-Mojigai.debug.xcconfig */,
-				6BF792DADDAA4F30713DA454 /* Pods-Mojigai.release.xcconfig */,
-			);
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		D53ABE6E25838013006C45E1 /* Tool */ = {
@@ -516,6 +521,7 @@
 				CD12000000000000000000E2 /* VideoCollectionController.m in Sources */,
 				CD12000000000000000000E3 /* VideoListController.m in Sources */,
 				CD12000000000000000000E4 /* VideoPreviewController.m in Sources */,
+				CD12000000000000000000E5 /* VideoMoveController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -707,7 +713,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lexinx.zhb.mojigai.v2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zhb.mojigai.v3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -720,6 +726,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = Mojigai/Mojigai.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = DVP8WVES9A;
@@ -732,8 +739,9 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.lexinx.zhb.mojigai.v2;
+				PRODUCT_BUNDLE_IDENTIFIER = com.zhb.mojigai.v3;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

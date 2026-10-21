@@ -16,6 +16,16 @@
 
 @interface WebBrowserView () <WKUIDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) TSWebView *wkWeb;
+// m3u8 下载候选列表(点「下载」时展示),URL 自动去重。由两个采集点共同填充:
+//
+// ① 网页网络请求监听 —— onNetworkRequest 过滤注入 JS 的上报后加入
+//    上报来源: XHR / fetch / 媒体元素 src(注入脚本统一经 messageHandlers 上报)
+//    命中条件(任一):
+//      - URL 含 .m3u8 或 .m3
+//      - 响应体以 #EXTM3U 或 #EXT-X- 开头(即使 URL 不像 m3u8,只要内容是 HLS 播放列表)
+//    注: 媒体元素消息的响应体为 nil,只能按 URL 判断;因注入脚本只上报 m3u8 地址,必然命中。
+//
+// ② 网页 HTML 解析 —— downloadClick 里从 document.documentElement.innerHTML 提取 video/source 的 src
 @property (nonatomic, strong) NSMutableArray<NSString *> *m3u8UrlArray;
 @property (nonatomic, copy) NSString *pageHTMLString;
 @property (nonatomic, copy) NSString *resultString;
@@ -85,8 +95,21 @@
     wkWeb.onNetworkRequest = ^(TSNetworkRequestInfo *request) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (!strongSelf) return;
+        if (!request || request.url.length == 0) return;
+
+        // 来源①:网页网络请求监听(注入 JS 上报 XHR / fetch / 媒体元素 src),在此过滤出 m3u8 候选。
+        // 放宽捕获条件(相比原来只认 ".m3u8" 字符串):
+        //  ① URL 含 .m3u8 / .m3 —— 覆盖带 token / 无扩展名地址;媒体元素 src(type==media) 因注入脚本
+        //     postMedia 只上报 m3u8 地址,其 URL 必然命中这里,无需单独判断
+        //  ② 响应体以 #EXTM3U / #EXT-X- 开头 —— HLS 播放列表铁证,覆盖 URL 不带 m3u8 的接口加载
         NSString *urlString = request.url;
-        if ([urlString isKindOfClass:[NSString class]] && [urlString containsString:@".m3u8"]) {
+        NSString *lower = [urlString lowercaseString];
+        NSString *trimmedResponse = [request.response stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+
+        BOOL isM3U8ByURL = ([lower containsString:@".m3u8"] || [lower containsString:@".m3u"]);
+        BOOL isM3U8ByResponse = ([trimmedResponse hasPrefix:@"#EXTM3U"] || [trimmedResponse hasPrefix:@"#EXT-X-"]);
+
+        if (isM3U8ByURL || isM3U8ByResponse) {
             if (!strongSelf.m3u8UrlArray) {
                 strongSelf.m3u8UrlArray = [NSMutableArray array];
             }
@@ -353,6 +376,7 @@
         if (!self.m3u8UrlArray) {
             self.m3u8UrlArray = [NSMutableArray array];
         }
+        // 来源②:从当前网页 HTML 里提取 video/source 标签的 m3u8 src(补充网络监听没抓到的静态地址)
         for (NSString *src in [HTMLTextTool extractM3U8URLsFromHTML:self.pageHTMLString]) {
             if (![self.m3u8UrlArray containsObject:src]) {
                 [self.m3u8UrlArray addObject:src];

@@ -8,6 +8,7 @@
 
 #import "VideoListController.h"
 #import "VideoPreviewController.h"
+#import "VideoMoveController.h"
 #import "VideoStore.h"
 #import "TSToast.h"
 #import <AVFoundation/AVFoundation.h>
@@ -100,12 +101,16 @@
     UIAlertAction *export = [UIAlertAction actionWithTitle:@"导出到文件" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         [self exportVideoAtPath:path];
     }];
+    UIAlertAction *move = [UIAlertAction actionWithTitle:@"移动" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        [self moveVideoAtPath:path];
+    }];
     UIAlertAction *del = [UIAlertAction actionWithTitle:@"删除" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
         [self confirmDeleteVideoAtPath:path];
     }];
     UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
     [sheet addAction:rename];
     [sheet addAction:export];
+    [sheet addAction:move];
     [sheet addAction:del];
     [sheet addAction:cancel];
     // iPad 适配:actionSheet 必须指定 popover 锚点
@@ -121,6 +126,24 @@
     UIDocumentPickerViewController *picker = [[UIDocumentPickerViewController alloc] initWithURL:[NSURL fileURLWithPath:path] inMode:UIDocumentPickerModeExportToService];
     picker.modalPresentationStyle = UIModalPresentationFormSheet;
     [self presentViewController:picker animated:YES completion:nil];
+}
+
+// 移动:present 文件夹选择控制器,确认后把视频移到目标文件夹
+- (void)moveVideoAtPath:(NSString *)path {
+    VideoMoveController *move = [[VideoMoveController alloc] init];
+    move.videoPath = path;
+    move.currentFolderName = self.folderName;
+    __weak typeof(self) weakSelf = self;
+    move.onMoved = ^(NSString *folderName) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        // 路径变了,清理旧路径封面缓存(封面按路径 hash 命名)
+        [strongSelf removeThumbForPath:path];
+        strongSelf.videoPaths = [[VideoStore videoPathsInFolder:strongSelf.folderName] mutableCopy];
+        [strongSelf.collectionView reloadData];
+    };
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:move];
+    nav.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentViewController:nav animated:YES completion:nil];
 }
 
 // 重命名:弹输入框,保留原扩展名,重名/非法名拒绝

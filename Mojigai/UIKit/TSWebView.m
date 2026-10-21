@@ -150,100 +150,188 @@ static NSString *TSStringValue(id value) {
 
 #pragma mark - 注入脚本
 
-// 包装 XMLHttpRequest 与 fetch,把请求的 URL / method / 参数与响应状态、响应内容经 messageHandlers 回传
+// 包装 XMLHttpRequest 与 fetch,把请求的 URL / method / 参数与响应状态、响应内容经 messageHandlers 回传。
+// 额外钩住媒体元素(video/audio)的 src,捕获直接赋值 m3u8 的情况。
+// 返回的 JS 在页面 documentStart 时注入(见 initWithFrame:configuration:)。
 + (NSString *)networkObserverScript {
-    return [NSString stringWithFormat:@"\
-(function() {\
-    if (window.__tsNetworkObserverInstalled) { return; }\
-    window.__tsNetworkObserverInstalled = true;\
-    var post = function(payload) {\
-        try { window.webkit.messageHandlers.%@.postMessage(payload); } catch (e) {}\
-    };\
-    var toText = function(body) {\
-        if (body === undefined || body === null) { return null; }\
-        if (typeof body === 'string') { return body; }\
-        try {\
-            if (typeof FormData !== 'undefined' && body instanceof FormData) {\
-                var parts = [];\
-                body.forEach(function(value, key) { parts.push(key + '=' + value); });\
-                return parts.join('&');\
-            }\
-            if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {\
-                return body.toString();\
-            }\
-        } catch (e) {}\
-        return null;\
-    };\
-    var resolveURL = function(url) {\
-        try { return new URL(url, window.location.href).href; } catch (e) { return String(url); }\
-    };\
-    var clamp = function(text) {\
-        if (typeof text !== 'string') { return null; }\
-        return text.length > 10000 ? text.substring(0, 10000) : text;\
-    };\
-    var readResponseText = function(xhr) {\
-        try {\
-            if (xhr.responseType === 'json') { return clamp(JSON.stringify(xhr.response)); }\
-            if (xhr.responseType === 'text' || xhr.responseType === '') { return clamp(xhr.responseText); }\
-        } catch (e) {}\
-        return null;\
-    };\
-    var requestProto = window.XMLHttpRequest && window.XMLHttpRequest.prototype;\
-    if (requestProto) {\
-        var originalOpen = requestProto.open;\
-        var originalSend = requestProto.send;\
-        requestProto.open = function(method, url) {\
-            this.__tsRequestMethod = method;\
-            this.__tsRequestURL = url;\
-            return originalOpen.apply(this, arguments);\
-        };\
-        requestProto.send = function(body) {\
-            var xhr = this;\
-            var method = xhr.__tsRequestMethod || 'GET';\
-            var url = resolveURL(xhr.__tsRequestURL || '');\
-            var params = toText(body);\
-            if (xhr.__tsLoadendHandler) { xhr.removeEventListener('loadend', xhr.__tsLoadendHandler); }\
-            xhr.__tsLoadendHandler = function() {\
-                post({ type: 'xhr', method: method, url: url, params: params, status: xhr.status, response: readResponseText(xhr) });\
-            };\
-            xhr.addEventListener('loadend', xhr.__tsLoadendHandler);\
-            return originalSend.apply(this, arguments);\
-        };\
-    }\
-    var originalFetch = window.fetch;\
-    if (originalFetch) {\
-        window.fetch = function(input, init) {\
-            var isRequest = typeof Request !== 'undefined' && input instanceof Request;\
-            var rawURL = typeof input === 'string' ? input : ((typeof URL !== 'undefined' && input instanceof URL) ? input.href : (input && input.url));\
-            var method = (init && init.method) || (isRequest && input.method) || 'GET';\
-            var url = resolveURL(rawURL || '');\
-            var params = toText(init && init.body);\
-            return originalFetch.apply(this, arguments).then(function(response) {\
-                var record = { type: 'fetch', method: method, url: url, params: params, status: response.status };\
-                var contentType = '';\
-                try { contentType = response.headers.get('content-type') || ''; } catch (e) {}\
-                if (contentType.indexOf('text/event-stream') === 0) {\
-                    post(record);\
-                    return response;\
-                }\
-                try {\
-                    response.clone().text().then(function(text) {\
-                        record.response = clamp(text);\
-                        post(record);\
-                    }, function() {\
-                        post(record);\
-                    });\
-                } catch (e) {\
-                    post(record);\
-                }\
-                return response;\
-            }, function(error) {\
-                post({ type: 'fetch', method: method, url: url, params: params, status: 0 });\
-                throw error;\
-            });\
-        };\
-    }\
-})();", TSNetworkObserverHandlerName];
+    // 用字符串数组按行拼接,便于阅读与加注释;数组里每行是一条 JS 语句。
+    // 占位符 __HANDLER__ 在下方替换成真实的消息 handler 名。
+    NSArray<NSString *> *lines = @[
+        @"(function() {",
+        @"    // 防止重复注入:同一页面可能多次执行本脚本",
+        @"    if (window.__tsNetworkObserverInstalled) { return; }",
+        @"    window.__tsNetworkObserverInstalled = true;",
+        @"",
+        @"    // ================= 基础工具 =================",
+        @"",
+        @"    // 把 JS 侧捕获到的请求信息发给原生端(WebBrowserView 的 onNetworkRequest 接收)",
+        @"    var post = function(payload) {",
+        @"        try { window.webkit.messageHandlers.__HANDLER__.postMessage(payload); } catch (e) {}",
+        @"    };",
+        @"",
+        @"    // 判断一个 URL 是否像 m3u8 播放列表地址(.m3u8 或 .m3u,忽略大小写,允许带 ?/# 参数)",
+        @"    var isM3U8 = function(url) {",
+        @"        url = String(url || '');",
+        @"        return /\\.m3u8([?#]|$)/i.test(url) || /\\.m3u([?#]|$)/i.test(url);",
+        @"    };",
+        @"",
+        @"    // 已上报过的媒体地址,避免重复上报",
+        @"    var postedMedia = {};",
+        @"    // 上报媒体元素 src(仅当它是 m3u8 地址时)",
+        @"    var postMedia = function(url) {",
+        @"        try {",
+        @"            url = String(url || '');",
+        @"            if (!isM3U8(url)) return;",
+        @"            if (postedMedia[url]) return;",
+        @"            postedMedia[url] = true;",
+        @"            post({ type: 'media', method: 'GET', url: url, params: null, status: 200, response: null });",
+        @"        } catch (e) {}",
+        @"    };",
+        @"",
+        @"    // 把请求体(FormData / URLSearchParams / 字符串)转成纯文本",
+        @"    var toText = function(body) {",
+        @"        if (body === undefined || body === null) { return null; }",
+        @"        if (typeof body === 'string') { return body; }",
+        @"        try {",
+        @"            if (typeof FormData !== 'undefined' && body instanceof FormData) {",
+        @"                var parts = [];",
+        @"                body.forEach(function(value, key) { parts.push(key + '=' + value); });",
+        @"                return parts.join('&');",
+        @"            }",
+        @"            if (typeof URLSearchParams !== 'undefined' && body instanceof URLSearchParams) {",
+        @"                return body.toString();",
+        @"            }",
+        @"        } catch (e) {}",
+        @"        return null;",
+        @"    };",
+        @"",
+        @"    // 把相对 URL 解析成绝对 URL",
+        @"    var resolveURL = function(url) {",
+        @"        try { return new URL(url, window.location.href).href; } catch (e) { return String(url); }",
+        @"    };",
+        @"",
+        @"    // 响应文本截断到 1 万字符,避免超大响应撑爆内存",
+        @"    var clamp = function(text) {",
+        @"        if (typeof text !== 'string') { return null; }",
+        @"        return text.length > 10000 ? text.substring(0, 10000) : text;",
+        @"    };",
+        @"",
+        @"    // 从 XHR 读取响应文本(仅处理文本/json 类型)",
+        @"    var readResponseText = function(xhr) {",
+        @"        try {",
+        @"            if (xhr.responseType === 'json') { return clamp(JSON.stringify(xhr.response)); }",
+        @"            if (xhr.responseType === 'text' || xhr.responseType === '') { return clamp(xhr.responseText); }",
+        @"        } catch (e) {}",
+        @"        return null;",
+        @"    };",
+        @"",
+        @"    // ================= 拦截 XMLHttpRequest =================",
+        @"",
+        @"    var requestProto = window.XMLHttpRequest && window.XMLHttpRequest.prototype;",
+        @"    if (requestProto) {",
+        @"        var originalOpen = requestProto.open;",
+        @"        var originalSend = requestProto.send;",
+        @"        // open 时记下 method 和 url",
+        @"        requestProto.open = function(method, url) {",
+        @"            this.__tsRequestMethod = method;",
+        @"            this.__tsRequestURL = url;",
+        @"            return originalOpen.apply(this, arguments);",
+        @"        };",
+        @"        // send 时挂一个 loadend 监听,请求结束把结果上报",
+        @"        requestProto.send = function(body) {",
+        @"            var xhr = this;",
+        @"            var method = xhr.__tsRequestMethod || 'GET';",
+        @"            var url = resolveURL(xhr.__tsRequestURL || '');",
+        @"            var params = toText(body);",
+        @"            // 先移除旧的监听,避免重复上报",
+        @"            if (xhr.__tsLoadendHandler) { xhr.removeEventListener('loadend', xhr.__tsLoadendHandler); }",
+        @"            xhr.__tsLoadendHandler = function() {",
+        @"                post({ type: 'xhr', method: method, url: url, params: params, status: xhr.status, response: readResponseText(xhr) });",
+        @"            };",
+        @"            xhr.addEventListener('loadend', xhr.__tsLoadendHandler);",
+        @"            return originalSend.apply(this, arguments);",
+        @"        };",
+        @"    }",
+        @"",
+        @"    // ================= 拦截 fetch =================",
+        @"",
+        @"    var originalFetch = window.fetch;",
+        @"    if (originalFetch) {",
+        @"        window.fetch = function(input, init) {",
+        @"            // 兼容字符串 / URL 对象 / Request 对象三种入参",
+        @"            var isRequest = typeof Request !== 'undefined' && input instanceof Request;",
+        @"            var rawURL = typeof input === 'string' ? input : ((typeof URL !== 'undefined' && input instanceof URL) ? input.href : (input && input.url));",
+        @"            var method = (init && init.method) || (isRequest && input.method) || 'GET';",
+        @"            var url = resolveURL(rawURL || '');",
+        @"            var params = toText(init && init.body);",
+        @"            return originalFetch.apply(this, arguments).then(function(response) {",
+        @"                var record = { type: 'fetch', method: method, url: url, params: params, status: response.status };",
+        @"                var contentType = '';",
+        @"                try { contentType = response.headers.get('content-type') || ''; } catch (e) {}",
+        @"                // 流式响应(如 SSE)不 clone 读 body,直接上报基本字段",
+        @"                if (contentType.indexOf('text/event-stream') === 0) {",
+        @"                    post(record);",
+        @"                    return response;",
+        @"                }",
+        @"                // 其余响应 clone 后读一次 body 文本(尽量拿到 m3u8 播放列表内容)",
+        @"                try {",
+        @"                    response.clone().text().then(function(text) {",
+        @"                        record.response = clamp(text);",
+        @"                        post(record);",
+        @"                    }, function() {",
+        @"                        post(record);",
+        @"                    });",
+        @"                } catch (e) {",
+        @"                    post(record);",
+        @"                }",
+        @"                return response;",
+        @"            }, function(error) {",
+        @"                post({ type: 'fetch', method: method, url: url, params: params, status: 0 });",
+        @"                throw error;",
+        @"            });",
+        @"        };",
+        @"    }",
+        @"",
+        @"    // ================= 媒体元素钩子 =================",
+        @"    // 捕获 video/audio 直接赋值 m3u8 地址的情况(XHR/fetch 拦截看不到这种)",
+        @"    (function() {",
+        @"        if (window.__tsMediaHooked) { return; }",
+        @"        window.__tsMediaHooked = true;",
+        @"",
+        @"        // 扫描页面里所有 video/audio,上报它们当前的 m3u8 地址",
+        @"        var scan = function() {",
+        @"            try {",
+        @"                var els = document.querySelectorAll('video,audio');",
+        @"                for (var i = 0; i < els.length; i++) {",
+        @"                    var el = els[i];",
+        @"                    var u = el.currentSrc || el.src;",
+        @"                    if (u) postMedia(u);",
+        @"                }",
+        @"            } catch (e) {}",
+        @"        };",
+        @"",
+        @"        // 拦下 src 的 setter:JS 里执行 el.src = 'xxx.m3u8' 时立即上报",
+        @"        var proto = window.HTMLMediaElement && window.HTMLMediaElement.prototype;",
+        @"        if (proto) {",
+        @"            try {",
+        @"                var srcDesc = Object.getOwnPropertyDescriptor(proto, 'src');",
+        @"                if (srcDesc && srcDesc.set) {",
+        @"                    Object.defineProperty(proto, 'src', {",
+        @"                        set: function(v) { srcDesc.set.call(this, v); postMedia(v); },",
+        @"                        get: function() { return srcDesc.get.call(this); }",
+        @"                    });",
+        @"                }",
+        @"            } catch (e) {}",
+        @"        }",
+        @"",
+        @"        // 立即扫一次,并每 2 秒兜底扫(覆盖动态创建视频元素或通过属性设置的站点)",
+        @"        scan();",
+        @"        setInterval(scan, 2000);",
+        @"    })();",
+        @"})();",
+    ];
+    NSString *script = [lines componentsJoinedByString:@"\n"];
+    return [script stringByReplacingOccurrencesOfString:@"__HANDLER__" withString:TSNetworkObserverHandlerName];
 }
 
 @end
