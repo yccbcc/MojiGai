@@ -40,6 +40,7 @@
 		MC0000000000000000000C03 /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = MC0000000000000000000C02 /* MainController.m */; };
 		SC0000000000000000000D03 /* SourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = SC0000000000000000000D02 /* SourceController.m */; };
 		WB12000000000000000000F3 /* WebBrowserView.m in Sources */ = {isa = PBXBuildFile; fileRef = WB12000000000000000000F2 /* WebBrowserView.m */; };
+		DL12000000000000000000A3 /* M3U8DownloadController.m in Sources */ = {isa = PBXBuildFile; fileRef = DL12000000000000000000A2 /* M3U8DownloadController.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -127,6 +128,8 @@
 		SC0000000000000000000D02 /* SourceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SourceController.m; sourceTree = "<group>"; };
 		WB12000000000000000000F1 /* WebBrowserView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebBrowserView.h; sourceTree = "<group>"; };
 		WB12000000000000000000F2 /* WebBrowserView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebBrowserView.m; sourceTree = "<group>"; };
+		DL12000000000000000000A1 /* M3U8DownloadController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = M3U8DownloadController.h; sourceTree = "<group>"; };
+		DL12000000000000000000A2 /* M3U8DownloadController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = M3U8DownloadController.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -287,6 +290,8 @@
 				SC0000000000000000000D02 /* SourceController.m */,
 				WB12000000000000000000F1 /* WebBrowserView.h */,
 				WB12000000000000000000F2 /* WebBrowserView.m */,
+				DL12000000000000000000A1 /* M3U8DownloadController.h */,
+				DL12000000000000000000A2 /* M3U8DownloadController.m */,
 				AC0000000000000000000B01 /* AccessControlController.h */,
 				AC0000000000000000000B02 /* AccessControlController.m */,
 				D56A12F622BB9D2C0083E2B9 /* Main.storyboard */,
@@ -500,6 +505,7 @@
 				MC0000000000000000000C03 /* MainController.m in Sources */,
 				SC0000000000000000000D03 /* SourceController.m in Sources */,
 				WB12000000000000000000F3 /* WebBrowserView.m in Sources */,
+				DL12000000000000000000A3 /* M3U8DownloadController.m in Sources */,
 				AC0000000000000000000B03 /* AccessControlController.m in Sources */,
 				4F9EB5AE2A9893B9007E213E /* ReadViewController.m in Sources */,
 				D53ABE752583803F006C45E1 /* ReatTxtManager.m in Sources */,

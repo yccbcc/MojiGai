@@ -12,6 +12,7 @@
 #import "HTMLTextTool.h"
 #import "ConvertVideoFormat.h"
 #import "VideoStore.h"
+#import "M3U8DownloadController.h"
 #import "TSToast.h"
 
 @interface WebBrowserView () <WKUIDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate>
@@ -27,6 +28,8 @@
 //
 // ② 网页 HTML 解析 —— downloadClick 里从 document.documentElement.innerHTML 提取 video/source 的 src
 @property (nonatomic, strong) NSMutableArray<NSString *> *m3u8UrlArray;
+// url -> 来源标识 NSNumber: 1=XHR/fetch, 2=媒体元素, 3=HTML解析(与 m3u8UrlArray 一一对应)
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSNumber *> *m3u8SourceDict;
 @property (nonatomic, copy) NSString *pageHTMLString;
 @property (nonatomic, copy) NSString *resultString;
 @end
@@ -112,10 +115,14 @@
         if (isM3U8ByURL || isM3U8ByResponse) {
             if (!strongSelf.m3u8UrlArray) {
                 strongSelf.m3u8UrlArray = [NSMutableArray array];
+                strongSelf.m3u8SourceDict = [NSMutableDictionary dictionary];
             }
             if (![strongSelf.m3u8UrlArray containsObject:urlString]) {
                 [strongSelf.m3u8UrlArray addObject:urlString];
-                NSLog(@"捕获 m3u8: %@", urlString);
+                // 来源:1=XHR/fetch, 2=媒体元素(上报 type 为 media 时)
+                NSInteger source = [request.type isEqualToString:@"media"] ? 2 : 1;
+                strongSelf.m3u8SourceDict[urlString] = @(source);
+                NSLog(@"捕获 m3u8(来源%ld): %@", (long)source, urlString);
             }
         }
     };
@@ -375,11 +382,13 @@
     if (self.pageHTMLString.length > 0) {
         if (!self.m3u8UrlArray) {
             self.m3u8UrlArray = [NSMutableArray array];
+            self.m3u8SourceDict = [NSMutableDictionary dictionary];
         }
         // 来源②:从当前网页 HTML 里提取 video/source 标签的 m3u8 src(补充网络监听没抓到的静态地址)
         for (NSString *src in [HTMLTextTool extractM3U8URLsFromHTML:self.pageHTMLString]) {
             if (![self.m3u8UrlArray containsObject:src]) {
                 [self.m3u8UrlArray addObject:src];
+                self.m3u8SourceDict[src] = @(3);   // 来源:3=HTML解析
                 NSLog(@"从 HTML 提取 m3u8 src: %@", src);
             }
         }
@@ -397,29 +406,18 @@
         return;
     }
 
-    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"选择要下载的 m3u8"
-                                                                    message:nil
-                                                             preferredStyle:UIAlertControllerStyleActionSheet];
-    for (NSString *urlString in self.m3u8UrlArray) {
-        NSString *title = urlString;
-        if (title.length > 40) {
-            title = [NSString stringWithFormat:@"%@...", [urlString substringToIndex:37]];
-        }
-        UIAlertAction *action = [UIAlertAction actionWithTitle:title
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^(UIAlertAction * _Nonnull action) {
-            [self chooseFolderAndDownloadM3U8:urlString button:btn];
-        }];
-        [sheet addAction:action];
-    }
-    [sheet addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
-
-    if (sheet.popoverPresentationController) {
-        sheet.popoverPresentationController.sourceView = btn;
-        sheet.popoverPresentationController.sourceRect = btn.bounds;
-    }
-
-    [parent presentViewController:sheet animated:YES completion:nil];
+    // 下载选择页:列表展示所有候选,每行含来源/可用性预检与下载按钮(替代原来的 actionSheet)
+    M3U8DownloadController *vc = [[M3U8DownloadController alloc] init];
+    vc.m3u8Urls = [self.m3u8UrlArray copy];
+    vc.sourceDict = [self.m3u8SourceDict copy];
+    __weak typeof(self) weakSelf = self;
+    vc.onStartDownload = ^(NSString *m3u8URL, NSString *folderName) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf startConvertWithM3U8URL:m3u8URL targetFolder:folderName];
+    };
+    UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
+    nav.modalPresentationStyle = UIModalPresentationFullScreen;
+    [parent presentViewController:nav animated:YES completion:nil];
 }
 
 #pragma mark - 缓存清理
@@ -439,33 +437,6 @@
 }
 
 // 选好 m3u8 后:再让用户选择保存到 Documents/videos 下的哪个文件夹(默认 default)
-- (void)chooseFolderAndDownloadM3U8:(NSString *)m3u8URLString button:(UIButton *)btn {
-    UIViewController *parent = [self parentViewController];
-    if (!parent) return;
-    NSArray<NSString *> *folders = [VideoStore folderNames];
-    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"选择保存位置"
-                                                                    message:@"保存到 Documents/videos 下的文件夹"
-                                                             preferredStyle:UIAlertControllerStyleActionSheet];
-    for (NSString *folder in folders) {
-        NSString *title = folder;
-        if ([folder isEqualToString:@"default"]) {
-            title = @"default(默认)";
-        }
-        UIAlertAction *action = [UIAlertAction actionWithTitle:title
-                                                         style:UIAlertActionStyleDefault
-                                                       handler:^(UIAlertAction * _Nonnull action) {
-            [self startConvertWithM3U8URL:m3u8URLString targetFolder:folder];
-        }];
-        [sheet addAction:action];
-    }
-    [sheet addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
-    if (sheet.popoverPresentationController) {
-        sheet.popoverPresentationController.sourceView = btn;
-        sheet.popoverPresentationController.sourceRect = btn.bounds;
-    }
-    [parent presentViewController:sheet animated:YES completion:nil];
-}
-
 - (void)startConvertWithM3U8URL:(NSString *)m3u8URLString targetFolder:(NSString *)folderName {
     if (m3u8URLString.length == 0) {
         return;
