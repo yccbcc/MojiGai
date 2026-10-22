@@ -406,7 +406,7 @@
         return;
     }
 
-    // 下载选择页:列表展示所有候选,每行含来源/可用性预检与下载按钮(替代原来的 actionSheet)
+    // 下载选择页:列表展示所有候选,每行含来源与下载按钮(替代原来的 actionSheet)
     M3U8DownloadController *vc = [[M3U8DownloadController alloc] init];
     vc.m3u8Urls = [self.m3u8UrlArray copy];
     vc.sourceDict = [self.m3u8SourceDict copy];

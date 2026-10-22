@@ -8,20 +8,9 @@
 
 #import "M3U8DownloadController.h"
 #import "VideoStore.h"
-#import "TSToast.h"
-#import <AVFoundation/AVFoundation.h>
-
-static void *M3U8StatusContext = &M3U8StatusContext;
-static const NSInteger kMaxConcurrentCheck = 4;   // 可播放性预检并发上限
-static const NSTimeInterval kCheckTimeout = 6.0;  // 预检超时(秒),超时视为不可用
 
 @interface M3U8DownloadController () <UITableViewDataSource, UITableViewDelegate>
 @property (nonatomic, strong) UITableView *tableView;
-// url -> NSNumber(usable): 有值=检测完成; 无值=未检测或检测中
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSNumber *> *statusDict;
-// 检测中的 url -> AVPlayerItem(用于 KVO)
-@property (nonatomic, strong) NSMutableDictionary<NSString *, AVPlayerItem *> *checkingItems;
-@property (nonatomic, assign) NSInteger checkingCount;
 @end
 
 @implementation M3U8DownloadController
@@ -29,8 +18,6 @@ static const NSTimeInterval kCheckTimeout = 6.0;  // 预检超时(秒),超时视
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = UIColor.whiteColor;
-    self.statusDict = [NSMutableDictionary dictionary];
-    self.checkingItems = [NSMutableDictionary dictionary];
 
     self.title = @"选择下载";
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"取消"
@@ -52,66 +39,6 @@ static const NSTimeInterval kCheckTimeout = 6.0;  // 预检超时(秒),超时视
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
-#pragma mark - 可播放性预检(AVPlayerItem)
-
-// 对某 url 启动预检(仅对可见 cell 懒加载,并发受限)
-- (void)checkForURL:(NSString *)url {
-    if (self.statusDict[url] || self.checkingItems[url]) return;
-    if (self.checkingCount >= kMaxConcurrentCheck) return;   // 达到并发上限,等空闲后 cell 刷新再触发
-
-    AVPlayerItem *item = [AVPlayerItem playerItemWithURL:[NSURL URLWithString:url]];
-    [item addObserver:self forKeyPath:@"status" options:NSKeyValueObservingOptionNew context:M3U8StatusContext];
-    self.checkingItems[url] = item;
-    self.checkingCount++;
-
-    // 超时兜底:6 秒还没 ready 视为不可用
-    __weak typeof(self) weakSelf = self;
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kCheckTimeout * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        if (strongSelf.checkingItems[url]) {
-            [strongSelf finishCheckForURL:url usable:NO];
-        }
-    });
-}
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context {
-    if (context != M3U8StatusContext || ![keyPath isEqualToString:@"status"]) {
-        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-        return;
-    }
-    AVPlayerItem *item = object;
-    __block NSString *foundURL = nil;
-    [self.checkingItems enumerateKeysAndObjectsUsingBlock:^(NSString *key, AVPlayerItem *value, BOOL *stop) {
-        if (value == item) { foundURL = key; *stop = YES; }
-    }];
-    if (!foundURL) return;
-
-    if (item.status == AVPlayerItemStatusReadyToPlay) {
-        [self finishCheckForURL:foundURL usable:YES];
-    } else if (item.status == AVPlayerItemStatusFailed) {
-        [self finishCheckForURL:foundURL usable:NO];
-    }
-    // unknown:继续等待,交给超时兜底
-}
-
-- (void)finishCheckForURL:(NSString *)url usable:(BOOL)usable {
-    AVPlayerItem *item = self.checkingItems[url];
-    if (item) {
-        @try {
-            [item removeObserver:self forKeyPath:@"status" context:M3U8StatusContext];
-        } @catch (NSException *e) {}
-        [self.checkingItems removeObjectForKey:url];
-        self.checkingCount--;
-    }
-    self.statusDict[url] = @(usable);
-
-    NSInteger idx = [self.m3u8Urls indexOfObject:url];
-    if (idx != NSNotFound) {
-        NSIndexPath *ip = [NSIndexPath indexPathForRow:idx inSection:0];
-        [self.tableView reloadRowsAtIndexPaths:@[ip] withRowAnimation:UITableViewRowAnimationNone];
-    }
-}
-
 #pragma mark - 下载按钮
 
 - (void)downloadTapped:(UIButton *)btn {
@@ -119,19 +46,7 @@ static const NSTimeInterval kCheckTimeout = 6.0;  // 预检超时(秒),超时视
     if (row < 0 || row >= self.m3u8Urls.count) return;
     NSString *url = self.m3u8Urls[row];
 
-    NSNumber *st = self.statusDict[url];
-    if (st && !st.boolValue) {
-        [TSToast show:@"该地址不可用"];
-        return;
-    }
-    if (!st) {
-        // 还在检测中(或排队中):先触发检测并提示等待
-        [self checkForURL:url];
-        [TSToast show:@"正在检测可用性,请稍候再点"];
-        return;
-    }
-
-    // 可用 → 弹文件夹选择,确认后回调并关闭本页
+    // 弹文件夹选择,确认后回调并关闭本页
     [self presentFolderChoiceForURL:url fromButton:btn];
 }
 
@@ -218,30 +133,6 @@ static const NSTimeInterval kCheckTimeout = 6.0;  // 预检超时(秒),超时视
     if (@available(iOS 13.0, *)) {
         thumb.image = [[UIImage systemImageNamed:@"play.rectangle.fill"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         thumb.tintColor = UIColor.lightGrayColor;
-    }
-
-    // 状态标记(可用性预检结果)
-    UILabel *status = (UILabel *)[cell.contentView viewWithTag:1303];
-    if (!status) {
-        status = [[UILabel alloc] init];
-        status.tag = 1303;
-        status.font = [UIFont systemFontOfSize:11];
-        [cell.contentView addSubview:status];
-    }
-    status.frame = CGRectMake(112, 48, 90, 20);
-    NSNumber *st = self.statusDict[url];
-    if (st) {
-        if (st.boolValue) {
-            status.text = @"● 可用";
-            status.textColor = [UIColor colorWithRed:0.20f green:0.70f blue:0.30f alpha:1.00f];
-        } else {
-            status.text = @"● 不可用";
-            status.textColor = [UIColor colorWithRed:0.90f green:0.30f blue:0.30f alpha:1.00f];
-        }
-    } else {
-        status.text = @"检测中…";
-        status.textColor = UIColor.grayColor;
-        [self checkForURL:url];   // 懒加载:cell 可见时才预检
     }
 
     // 右下:下载按钮

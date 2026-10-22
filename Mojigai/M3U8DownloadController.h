@@ -10,8 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// m3u8 下载选择页:列表展示候选地址,每行 = 标题(URL) + 缩略图占位 + 可用性标记 + 下载按钮。
-/// 可用性用 AVPlayerItem 预检(能加载 = 可用);点「下载」且可用时弹文件夹选择,确认后回调开始下载并关闭本页。
+/// m3u8 下载选择页:列表展示候选地址,每行 = 标题(URL) + 缩略图占位 + 下载按钮。
+/// 点「下载」后弹文件夹选择,确认后回调开始下载并关闭本页。
 /// 由调用方包一层 UINavigationController present 出来。
 @interface M3U8DownloadController : UIViewController
 
