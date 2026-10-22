@@ -20,6 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 全局单例网页视图(Editor / Main 共用同一实例,打开关闭保留网页状态)。
 + (instancetype)sharedBrowser;
 
+/// 彻底销毁全局单例并清空网页缓存(磁盘/内存缓存、Cookie 等);下次打开时重建并重新加载。
++ (void)destroySharedBrowser;
+
 /// 把网页视图挂到 key window 全屏显示;再次调用直接复用原实例,不重新加载 URL。
 + (void)showOnWindow;
 

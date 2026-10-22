@@ -13,6 +13,7 @@
 #import "VideoCollectionController.h"
 #import "SourceController.h"
 #import "WebBrowserView.h"
+#import "TSToast.h"
 
 @interface MainController ()
 @end
@@ -26,6 +27,37 @@
     self.tableView.backgroundColor = [UIColor colorWithRed:0.94f green:0.95f blue:0.97f alpha:1.00f];
     self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
     self.tableView.rowHeight = 100;
+
+    // 长按 Web 入口(section 4):销毁全局网页视图并清空网页缓存。
+    // WebBrowserView 是常驻单例,缓存过大时不重启 App 无法释放,长按可就地重置。
+    UILongPressGestureRecognizer *webLongPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleWebLongPress:)];
+    webLongPress.minimumPressDuration = 0.6;
+    [self.tableView addGestureRecognizer:webLongPress];
+}
+
+// 长按命中 Web 行时,先弹二次确认(防误触),确认后再销毁网页视图并清空缓存。
+- (void)handleWebLongPress:(UILongPressGestureRecognizer *)gr {
+    if (gr.state != UIGestureRecognizerStateBegan) {
+        return;
+    }
+    CGPoint point = [gr locationInView:self.tableView];
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:point];
+    if (!indexPath || indexPath.section != 4) {   // 仅 Web 入口响应
+        return;
+    }
+    [self confirmDestroyWebBrowser];
+}
+
+- (void)confirmDestroyWebBrowser {
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"确认清理缓存？"
+                                                                  message:@"将销毁当前网页并清空所有缓存，下次打开重新加载。"
+                                                           preferredStyle:UIAlertControllerStyleAlert];
+    [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"确认清理" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
+        [WebBrowserView destroySharedBrowser];
+        [TSToast show:@"已销毁网页并清空缓存"];
+    }]];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 #pragma mark - UITableViewDataSource

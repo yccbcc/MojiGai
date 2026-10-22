@@ -10,7 +10,7 @@
 #import <WebKit/WebKit.h>
 #import "TSWebView.h"
 #import "HTMLTextTool.h"
-#import "ConvertVideoFormat.h"
+#import "VideoDownloadTool.h"
 #import "VideoStore.h"
 #import "M3U8DownloadController.h"
 #import "TSToast.h"
@@ -32,6 +32,8 @@
 @property (nonatomic, strong) NSMutableDictionary<NSString *, NSNumber *> *m3u8SourceDict;
 @property (nonatomic, copy) NSString *pageHTMLString;
 @property (nonatomic, copy) NSString *resultString;
+// 视频下载工具:封装 m3u8 转码 / mp4 直下与进度回调(懒加载)
+@property (nonatomic, strong) VideoDownloadTool *downloadTool;
 @end
 
 @implementation WebBrowserView
@@ -165,18 +167,42 @@
 
 #pragma mark - 全局单例(挂到 window)
 
+// 全局网页视图实例。用可重置的静态变量而非 dispatch_once:
+// 便于「长按 Web 入口」时销毁实例并清空网页缓存,下次打开重建——解决缓存膨胀只能重启 App 的问题。
+static WebBrowserView *sSharedBrowser = nil;
+
 + (instancetype)sharedBrowser {
-    static WebBrowserView *s = nil;
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{
-        s = [[WebBrowserView alloc] initWithFrame:CGRectZero];
-        __weak typeof(s) weakS = s;
-        s.onClose = ^{
+    if (!sSharedBrowser) {
+        sSharedBrowser = [[WebBrowserView alloc] initWithFrame:CGRectZero];
+        __weak typeof(sSharedBrowser) weakS = sSharedBrowser;
+        sSharedBrowser.onClose = ^{
             __strong typeof(weakS) strongS = weakS;
             [strongS hide];
         };
-    });
-    return s;
+    }
+    return sSharedBrowser;
+}
+
+// 彻底销毁全局网页视图:停止加载 → 断开代理/回调 → 移出 window → 释放实例 → 清空网页数据。
+// 之后再次打开 Web 时 sharedBrowser 会新建,并按 lastWebURL 重新加载,相当于重置整个网页模块。
++ (void)destroySharedBrowser {
+    WebBrowserView *b = sSharedBrowser;
+    if (!b) return;
+
+    // 打断进行中的加载与回调,避免异步回调触达即将释放的实例
+    [b.wkWeb stopLoading];
+    b.wkWeb.navigationDelegate = nil;
+    b.wkWeb.UIDelegate = nil;
+    b.wkWeb.onNetworkRequest = nil;
+
+    [b hide];                 // 移出 window,断开 superview 的强引用
+    sSharedBrowser = nil;     // 释放单例,下次重建
+
+    // 清空 WKWebView 网站数据(磁盘/内存缓存、Cookie、本地存储等),真正回收缓存
+    WKWebsiteDataStore *store = [WKWebsiteDataStore defaultDataStore];
+    [store removeDataOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
+               modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
+           completionHandler:^{}];
 }
 
 + (void)showOnWindow {
@@ -222,6 +248,9 @@
     NSString *savedURL = [[NSUserDefaults standardUserDefaults] stringForKey:@"lastWebURL"];
     if (savedURL.length > 0) {
         [self loadURL:savedURL];
+    } else {
+        // 首次打开且未记住任何网址时,默认加载主页
+        [self homeClick];
     }
 }
 
@@ -259,6 +288,8 @@
     if (![urlString hasPrefix:@"http://"] && ![urlString hasPrefix:@"https://"]) {
         urlString = [NSString stringWithFormat:@"https://%@", urlString];
     }
+    // 主动加载新网址(地址栏输入 / 主页 / 外部传入):属于真正的页面切换,清空旧页候选
+    [self clearM3U8Candidates];
     [_wkWeb loadRequest:[NSURLRequest requestWithURL:[NSURL URLWithString:urlString]]];
     [[NSUserDefaults standardUserDefaults] setObject:urlString forKey:@"lastWebURL"];
 }
@@ -312,6 +343,12 @@
             [strongSelf loadURL:newURL];
         }
     }]];
+    [alert addAction:[UIAlertAction actionWithTitle:@"下载" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) return;
+        UITextView *input = (UITextView *)[alert.view viewWithTag:901];
+        [strongSelf downloadFromAddressBarURL:input.text];
+    }]];
     [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
 
     [parent presentViewController:alert animated:YES completion:^{
@@ -347,7 +384,7 @@
 
 // 刷新(下拉刷新触发;同时清空捕获的 m3u8 列表)
 - (void)reloadClick {
-    [self.m3u8UrlArray removeAllObjects];
+    [self clearM3U8Candidates];
     [self.wkWeb reload];
 }
 
@@ -413,79 +450,118 @@
     __weak typeof(self) weakSelf = self;
     vc.onStartDownload = ^(NSString *m3u8URL, NSString *folderName) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        [strongSelf startConvertWithM3U8URL:m3u8URL targetFolder:folderName];
+        [strongSelf downloadVideoURL:m3u8URL type:VideoURLTypeM3U8 targetFolder:folderName];
     };
     UINavigationController *nav = [[UINavigationController alloc] initWithRootViewController:vc];
     nav.modalPresentationStyle = UIModalPresentationFullScreen;
     [parent presentViewController:nav animated:YES completion:nil];
 }
 
-#pragma mark - 缓存清理
+#pragma mark - 下载调度(委托 VideoDownloadTool)
 
-// 清理 Caches 里历次转换残留的 mp4。
-- (void)removeOldCachedMP4Files {
-    NSURL *cachesURL = [[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] firstObject];
-    NSArray<NSURL *> *fileURLs = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:cachesURL
-                                                               includingPropertiesForKeys:nil
-                                                                                  options:0
-                                                                                    error:nil];
-    for (NSURL *fileURL in fileURLs) {
-        if ([fileURL.pathExtension.lowercaseString isEqualToString:@"mp4"]) {
-            [[NSFileManager defaultManager] removeItemAtURL:fileURL error:nil];
-        }
-    }
-}
-
-// 选好 m3u8 后:再让用户选择保存到 Documents/videos 下的哪个文件夹(默认 default)
-- (void)startConvertWithM3U8URL:(NSString *)m3u8URLString targetFolder:(NSString *)folderName {
-    if (m3u8URLString.length == 0) {
-        return;
-    }
-    [self removeOldCachedMP4Files];
-
-    NSURL *outputURL = [[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] firstObject];
-    NSString *fileName = [NSString stringWithFormat:@"%.0f.mp4", [[NSDate date] timeIntervalSince1970]];
-    outputURL = [outputURL URLByAppendingPathComponent:fileName];
+// 顶部「下载」列表与地址栏「下载」都经此:视图只把工具回调的进度 / 结果映射到下载按钮与 Toast,
+// 真正的网络下载 / m3u8 转码 / 落库都封装在 VideoDownloadTool 内。
+- (void)downloadVideoURL:(NSString *)urlString type:(VideoURLType)type targetFolder:(NSString *)folderName {
+    if (urlString.length == 0) return;
 
     UIButton *dlBtn = [self downloadButton];
     [dlBtn setTitle:@"0%" forState:UIControlStateNormal];
 
-    __block NSInteger fakeProgress = 0;
-    [ConvertVideoFormat convertM3U8ToMP4WithInputURL:[NSURL URLWithString:m3u8URLString]
-                                          outputURL:outputURL
-                                            progress:^(float progress) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if (fakeProgress < 90) {
-                fakeProgress += 3;
-                if (fakeProgress > 90) fakeProgress = 90;
-                [dlBtn setTitle:[NSString stringWithFormat:@"%ld%%", (long)fakeProgress] forState:UIControlStateNormal];
-            }
-        });
-    } completion:^(BOOL success, NSURL *url, NSString *error) {
-        [self.m3u8UrlArray removeObject:m3u8URLString];
-
+    __weak typeof(self) weakSelf = self;
+    VideoDownloadProgressBlock progress = ^(float value) {
+        NSInteger pct = (NSInteger)(value * 100);
+        [[weakSelf downloadButton] setTitle:[NSString stringWithFormat:@"%ld%%", (long)pct] forState:UIControlStateNormal];
+    };
+    VideoDownloadCompletionBlock completion = ^(BOOL success, NSString *savedPath, NSString *error) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) return;
+        // 若该地址来自 m3u8 候选列表,完成后移除,避免重复展示
+        [strongSelf.m3u8UrlArray removeObject:urlString];
+        UIButton *btn = [strongSelf downloadButton];
         if (success) {
-            NSLog(@"转换完成: %@", url.path);
-            NSError *copyError = nil;
-            NSString *targetDir = [VideoStore folderPath:folderName];
-            NSString *stored = [VideoStore saveVideoFromURL:url intoDirectory:targetDir error:&copyError];
-            [[NSFileManager defaultManager] removeItemAtURL:url error:nil];
-            if (stored) {
-                [dlBtn setTitle:@"100%" forState:UIControlStateNormal];
-                [TSToast show:@"下载完成"];
-            } else {
-                [dlBtn setTitle:@"下载" forState:UIControlStateNormal];
-                [TSToast show:[NSString stringWithFormat:@"保存失败: %@", copyError ?: @"未知错误"]];
-            }
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [dlBtn setTitle:@"下载" forState:UIControlStateNormal];
-            });
+            [btn setTitle:@"100%" forState:UIControlStateNormal];
+            [TSToast show:@"下载完成"];
         } else {
-            NSLog(@"转换失败: %@", error);
-            [dlBtn setTitle:@"下载" forState:UIControlStateNormal];
+            [btn setTitle:@"下载" forState:UIControlStateNormal];
             [TSToast show:[NSString stringWithFormat:@"下载失败: %@", error ?: @"未知错误"]];
         }
-    }];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [[weakSelf downloadButton] setTitle:@"下载" forState:UIControlStateNormal];
+        });
+    };
+
+    if (type == VideoURLTypeMP4) {
+        [self.downloadTool downloadMP4:urlString targetFolder:folderName progress:progress completion:completion];
+    } else {
+        [self.downloadTool downloadM3U8:urlString targetFolder:folderName progress:progress completion:completion];
+    }
+}
+
+// 懒加载下载工具:视图持有,负责实际下载与线程调度
+- (VideoDownloadTool *)downloadTool {
+    if (!_downloadTool) {
+        _downloadTool = [[VideoDownloadTool alloc] init];
+    }
+    return _downloadTool;
+}
+
+#pragma mark - 地址栏下载(视频 URL 直接下载)
+
+// 地址栏「下载」:先补 scheme、用工具判断是不是视频,再让用户选保存文件夹。
+- (void)downloadFromAddressBarURL:(NSString *)urlString {
+    urlString = [urlString stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
+    if (urlString.length == 0) {
+        [TSToast show:@"请输入网址"];
+        return;
+    }
+    if (![urlString hasPrefix:@"http://"] && ![urlString hasPrefix:@"https://"]) {
+        urlString = [NSString stringWithFormat:@"https://%@", urlString];
+    }
+
+    UIViewController *parent = [self parentViewController];
+    if (!parent) return;
+
+    VideoURLType type = [VideoDownloadTool videoTypeForURLString:urlString];
+    if (type == VideoURLTypeNone) {
+        UIAlertController *tip = [UIAlertController alertControllerWithTitle:@"无法下载"
+                                                                    message:@"该地址不是视频(.mp4 / .m3u8)"
+                                                             preferredStyle:UIAlertControllerStyleAlert];
+        [tip addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:nil]];
+        // 等「输入网址」弹窗消失后再弹提示,避免 present 冲突
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [parent presentViewController:tip animated:YES completion:nil];
+        });
+        return;
+    }
+
+    [self presentFolderChoiceForVideoURL:urlString type:type];
+}
+
+// 选择保存到 Documents/videos 下的哪个文件夹,确认后交给下载工具执行。
+- (void)presentFolderChoiceForVideoURL:(NSString *)urlString type:(VideoURLType)type {
+    UIViewController *parent = [self parentViewController];
+    if (!parent) return;
+
+    UIAlertController *sheet = [UIAlertController alertControllerWithTitle:@"选择保存位置"
+                                                                  message:@"保存到 Documents/videos 下的文件夹"
+                                                           preferredStyle:UIAlertControllerStyleActionSheet];
+    for (NSString *folder in [VideoStore folderNames]) {
+        NSString *title = [folder isEqualToString:@"default"] ? @"default(默认)" : folder;
+        [sheet addAction:[UIAlertAction actionWithTitle:title
+                                                  style:UIAlertActionStyleDefault
+                                                handler:^(UIAlertAction *action) {
+            [self downloadVideoURL:urlString type:type targetFolder:folder];
+        }]];
+    }
+    [sheet addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
+    if (sheet.popoverPresentationController) {
+        sheet.popoverPresentationController.sourceView = self;
+        sheet.popoverPresentationController.sourceRect = CGRectMake(CGRectGetMidX(self.bounds), CGRectGetMidY(self.bounds), 1, 1);
+    }
+    // 延迟到「输入网址」弹窗消失后再弹,避免 present 冲突
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [parent presentViewController:sheet animated:YES completion:nil];
+    });
 }
 
 #pragma mark - 弹出控制器查找
@@ -510,14 +586,59 @@
 #pragma mark - WKUIDelegate / WKNavigationDelegate
 
 - (nullable WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures {
+    // 新窗口请求(target="_blank" / window.open):WKWebView 默认不自建窗口,必须在此处理。
+    // 防广告一小步:仅当新地址与当前页同域名时,才拉回当前 webview 打开;
+    // 跨域的弹窗(多为广告/引流)直接丢弃(return nil 且不加载)。
     if (!navigationAction.targetFrame.isMainFrame) {
-        [webView loadRequest:navigationAction.request];
+        NSString *newMainDomain = [self mainDomainForURL:navigationAction.request.URL];
+        NSString *currentMainDomain = [self mainDomainForURL:webView.URL];
+        if (newMainDomain.length > 0 && [newMainDomain isEqualToString:currentMainDomain]) {
+            [webView loadRequest:navigationAction.request];
+        } else {
+            NSLog(@"拦截跨域弹窗: %@ (当前主域: %@)", navigationAction.request.URL.absoluteString ?: @"(空)", currentMainDomain ?: @"(空)");
+        }
     }
     return nil;
 }
 
+// 取主域名(忽略子域):a.bilibili.com 与 www.bilibili.com 都归为 bilibili.com。
+// 转小写后默认取最后两段;若命中已知多段公共后缀(如 .com.cn / .co.uk),则多取一段定位真正主域。
+- (NSString *)mainDomainForURL:(NSURL *)url {
+    NSString *host = url.host.lowercaseString;
+    if (host.length == 0) return host;
+    NSArray<NSString *> *labels = [host componentsSeparatedByString:@"."];
+    if (labels.count <= 2) return host;   // 本就两段或更少,直接就是主域
+
+    // 末尾两段属于常见多段公共后缀时,主域应为「倒数第三段 + 后两段」(共三段)
+    NSString *lastTwo = [labels[labels.count - 2] isEqualToString:@""] ? nil :
+                        [NSString stringWithFormat:@"%@.%@", labels[labels.count - 2], labels[labels.count - 1]];
+    NSSet *multiPartSuffixes = [NSSet setWithArray:@[
+        @"com.cn", @"net.cn", @"org.cn", @"gov.cn", @"edu.cn", @"ac.cn",
+        @"com.hk", @"com.tw", @"com.mo", @"co.uk", @"org.uk", @"ac.uk",
+        @"com.jp", @"co.jp", @"or.jp", @"com.sg", @"com.au", @"co.za", @"co.kr"
+    ]];
+    NSInteger span = (lastTwo && [multiPartSuffixes containsObject:lastTwo]) ? 3 : 2;
+    NSInteger startIndex = labels.count - span;
+    NSArray *mainParts = [labels subarrayWithRange:NSMakeRange(startIndex, span)];
+    return [mainParts componentsJoinedByString:@"."];
+}
+
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    // 只在「用户真正点击链接」这种确定要切换到新网址的场景清空上一次 m3u8 候选。
+    // 忽略重定向 / 前端 JS 跳转 / backForward 等 WKNavigationTypeOther 导航——
+    // 它们可能在新页面 m3u8 已被捕获后再次触发,会把当前页刚抓到的地址误清掉。
+    // (代码里主动 loadURL 的清空放在 loadURL: 中处理;下拉刷新放在 reloadClick 中处理。)
+    if (navigationAction.targetFrame.isMainFrame &&
+        navigationAction.navigationType == WKNavigationTypeLinkActivated) {
+        [self clearM3U8Candidates];
+    }
     decisionHandler(WKNavigationActionPolicyAllow);
+}
+
+// 清空当前积累的 m3u8 候选与来源标识(数组为 nil 时发消息也安全)
+- (void)clearM3U8Candidates {
+    [self.m3u8UrlArray removeAllObjects];
+    [self.m3u8SourceDict removeAllObjects];
 }
 
 - (void)webView:(WKWebView *)webView didFailNavigation:(WKNavigation *)navigation withError:(NSError *)error {

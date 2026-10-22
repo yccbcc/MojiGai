@@ -41,6 +41,7 @@
 		SC0000000000000000000D03 /* SourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = SC0000000000000000000D02 /* SourceController.m */; };
 		WB12000000000000000000F3 /* WebBrowserView.m in Sources */ = {isa = PBXBuildFile; fileRef = WB12000000000000000000F2 /* WebBrowserView.m */; };
 		DL12000000000000000000A3 /* M3U8DownloadController.m in Sources */ = {isa = PBXBuildFile; fileRef = DL12000000000000000000A2 /* M3U8DownloadController.m */; };
+		VD11000000000000000000B3 /* VideoDownloadTool.m in Sources */ = {isa = PBXBuildFile; fileRef = VD11000000000000000000B2 /* VideoDownloadTool.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,6 +131,8 @@
 		WB12000000000000000000F2 /* WebBrowserView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebBrowserView.m; sourceTree = "<group>"; };
 		DL12000000000000000000A1 /* M3U8DownloadController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = M3U8DownloadController.h; sourceTree = "<group>"; };
 		DL12000000000000000000A2 /* M3U8DownloadController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = M3U8DownloadController.m; sourceTree = "<group>"; };
+		VD11000000000000000000B1 /* VideoDownloadTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoDownloadTool.h; sourceTree = "<group>"; };
+		VD11000000000000000000B2 /* VideoDownloadTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoDownloadTool.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -233,6 +236,8 @@
 				4F9EB5D12A9893B9007E213E /* ImageStore.m */,
 				CD12000000000000000000D2 /* VideoStore.h */,
 				CD12000000000000000000D1 /* VideoStore.m */,
+				VD11000000000000000000B1 /* VideoDownloadTool.h */,
+				VD11000000000000000000B2 /* VideoDownloadTool.m */,
 			);
 			path = Tool;
 			sourceTree = "<group>";
@@ -524,6 +529,7 @@
 				4F9EB5D92A9893B9007E213E /* ImagePreviewController.m in Sources */,
 				AB12000000000000000000A3 /* PhotoAlbumController.m in Sources */,
 				CD12000000000000000000E1 /* VideoStore.m in Sources */,
+				VD11000000000000000000B3 /* VideoDownloadTool.m in Sources */,
 				CD12000000000000000000E2 /* VideoCollectionController.m in Sources */,
 				CD12000000000000000000E3 /* VideoListController.m in Sources */,
 				CD12000000000000000000E4 /* VideoPreviewController.m in Sources */,
