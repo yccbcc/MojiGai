@@ -1,0 +1,5 @@
+# macOS 目录元数据
+.DS_Store
+
+# Xcode 用户个人状态(窗口布局 / 断点 / 选中等),因人而异,不应纳入版本控制
+*.xcuserstate
