@@ -587,18 +587,34 @@ static WebBrowserView *sSharedBrowser = nil;
 
 - (nullable WKWebView *)webView:(WKWebView *)webView createWebViewWithConfiguration:(WKWebViewConfiguration *)configuration forNavigationAction:(WKNavigationAction *)navigationAction windowFeatures:(WKWindowFeatures *)windowFeatures {
     // 新窗口请求(target="_blank" / window.open):WKWebView 默认不自建窗口,必须在此处理。
-    // 防广告一小步:仅当新地址与当前页同域名时,才拉回当前 webview 打开;
-    // 跨域的弹窗(多为广告/引流)直接丢弃(return nil 且不加载)。
+    // 搜索引擎结果页的链接天然指向别的站点,不属于广告引流,一律放行拉回当前 webview;
+    // 其它页面防广告一小步:仅当新地址与当前页同域名时才拉回,跨域弹窗(多为广告/引流)直接丢弃。
     if (!navigationAction.targetFrame.isMainFrame) {
-        NSString *newMainDomain = [self mainDomainForURL:navigationAction.request.URL];
         NSString *currentMainDomain = [self mainDomainForURL:webView.URL];
-        if (newMainDomain.length > 0 && [newMainDomain isEqualToString:currentMainDomain]) {
+        NSString *newMainDomain = [self mainDomainForURL:navigationAction.request.URL];
+        BOOL sameDomain = newMainDomain.length > 0 && [newMainDomain isEqualToString:currentMainDomain];
+        if ([self isSearchEngineURL:webView.URL] || sameDomain) {
+            // 弹窗被拉回当前页等同于真正的页面切换,清掉旧页积累的 m3u8 候选
+            [self clearM3U8Candidates];
             [webView loadRequest:navigationAction.request];
         } else {
             NSLog(@"拦截跨域弹窗: %@ (当前主域: %@)", navigationAction.request.URL.absoluteString ?: @"(空)", currentMainDomain ?: @"(空)");
         }
     }
     return nil;
+}
+
+// 判断当前页是否搜索引擎:取主域后只比最前面的品牌段,这样 google.com / google.co.jp / google.com.hk
+// 都归为 google,不必把各国域名逐个写进名单。
+- (BOOL)isSearchEngineURL:(NSURL *)url {
+    NSString *brand = [[self mainDomainForURL:url] componentsSeparatedByString:@"."].firstObject;
+    if (brand.length == 0) return NO;
+    static NSSet<NSString *> *engineBrands;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        engineBrands = [NSSet setWithArray:@[@"google", @"bing", @"baidu", @"sogou"]];
+    });
+    return [engineBrands containsObject:brand];
 }
 
 // 取主域名(忽略子域):a.bilibili.com 与 www.bilibili.com 都归为 bilibili.com。

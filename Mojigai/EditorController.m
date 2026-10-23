@@ -14,6 +14,13 @@
 #import "DCFileTool.h"
 #import "WebBrowserView.h"
 
+// Base64 解码为 UTF-8 明文字符串,失败返回 nil
+static NSString *MojiDecodeBase64(NSString *base64) {
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:base64 options:0];
+    if (!data) return nil;
+    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+}
+
 @interface EditorController ()
 <
 UITextFieldDelegate,
@@ -192,8 +199,13 @@ UIScrollViewDelegate
 
     if (textField == _rightTf){
         NSString *_leftText = _leftTf.text;
-        NSString *_rightText = _rightTf.text.length > 0 ? _rightTf.text : [NSString stringWithFormat:@"%@改%@", @"张", @"生"];
-        _rightText = [_rightText isEqualToString:@"2"] ? [NSString stringWithFormat:@"%@峰", @"云"] : _rightText;
+        NSString *rightTextBase641 = @"5byg5pS555Sf";
+        NSString *rightTextBase642 = @"5LqR5bOw";
+        // 常量为 Base64 编码,使用前先解码成明文,否则替换会拿编码串去匹配
+        NSString *rightText1 = MojiDecodeBase64(rightTextBase641);
+        NSString *rightText2 = MojiDecodeBase64(rightTextBase642);
+        NSString *_rightText = _rightTf.text.length > 0 ? _rightTf.text : rightText1;
+        _rightText = [_rightText isEqualToString:@"2"] ? rightText2 : _rightText;
         if (_leftText.length > 0) {
             // 替换规则见 TextReplaceManager
             _textView.text = [TextReplaceManager replaceText:_textView.text leftText:_leftText rightText:_rightText];
