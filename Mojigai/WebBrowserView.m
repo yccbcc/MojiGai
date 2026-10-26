@@ -16,7 +16,7 @@
 #import "TSToast.h"
 #import "UIWindow+CurrentWindow.h"
 
-@interface WebBrowserView () <WKUIDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate>
+@interface WebBrowserView () <WKUIDelegate, WKNavigationDelegate, WKDownloadDelegate, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) TSWebView *wkWeb;
 // m3u8 下载候选列表(点「下载」时展示),URL 自动去重。由两个采集点共同填充:
 //
@@ -35,6 +35,8 @@
 @property (nonatomic, copy) NSString *resultString;
 // 视频下载工具:封装 m3u8 转码 / mp4 直下与进度回调(懒加载)
 @property (nonatomic, strong) VideoDownloadTool *downloadTool;
+// 网页原生下载:download -> 落盘地址映射(懒加载,weak key)
+@property (nonatomic, strong) NSMapTable<WKDownload *, NSURL *> *downloadDestinations;
 @end
 
 @implementation WebBrowserView
@@ -644,6 +646,100 @@ static WebBrowserView *sSharedBrowser = nil;
         [self clearM3U8Candidates];
     }
     decisionHandler(WKNavigationActionPolicyAllow);
+}
+
+#pragma mark - 网页原生下载(WKDownload)
+
+// download -> 落盘地址。新版 SDK 的完成回调 downloadDidFinish: 不再回传 URL,
+// 需在 decideDestination 时记下目标地址,供完成时展示文件名与路径。weak key:下载结束自动清理。
+- (NSMapTable<WKDownload *, NSURL *> *)downloadDestinations {
+    if (!_downloadDestinations) {
+        _downloadDestinations = [NSMapTable weakToStrongObjectsMapTable];
+    }
+    return _downloadDestinations;
+}
+
+// Documents/videos/downloads 目录,不存在时自动创建。放在 videos 下,下载的视频会直接作为「downloads」
+// 文件夹出现在视频列表里。videos 根目录由 VideoStore 统一维护(不存在会自动建)。WKDownload 需 iOS 14.5+。
+- (NSString *)downloadsDirectory {
+    NSString *dir = [[VideoStore videosDirectory] stringByAppendingPathComponent:@"downloads"];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    if (![fm fileExistsAtPath:dir]) {
+        [fm createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
+    }
+    return dir;
+}
+
+// 目标文件已存在时在名尾追加 (1)(2)… 顺延,避免覆盖旧文件
+- (NSURL *)uniqueDestinationURLForFilename:(NSString *)filename {
+    NSString *dir = [self downloadsDirectory];
+    NSString *base = filename.stringByDeletingPathExtension;
+    NSString *ext = filename.pathExtension;
+    NSString *candidate = filename;
+    NSInteger index = 1;
+    while ([[NSFileManager defaultManager] fileExistsAtPath:[dir stringByAppendingPathComponent:candidate]]) {
+        candidate = [NSString stringWithFormat:@"%@ (%ld).%@", base, (long)index, ext];
+        index++;
+    }
+    return [NSURL fileURLWithPath:[dir stringByAppendingPathComponent:candidate]];
+}
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler {
+    // iOS 14.5+ 网页原生下载入口:<a download> / Content-Disposition: attachment / 无法内联渲染的类型,
+    // WebKit 都会把响应作为下载提议到这里。不实现本回调时默认取消下载(点了没反应)。
+    if (@available(iOS 14.5, *)) {
+        NSString *disposition = nil;
+        if ([navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]]) {
+            disposition = [(NSHTTPURLResponse *)navigationResponse.response allHeaderFields][@"Content-Disposition"];
+        }
+        BOOL isAttachment = [disposition rangeOfString:@"attachment" options:NSCaseInsensitiveSearch].location != NSNotFound;
+        if (!navigationResponse.canShowMIMEType || isAttachment) {
+            // 转交 WKDownload 通道:随后经 didBecomeDownload 回调拿到 download,再由 downloadDelegate 决定落盘位置
+            decisionHandler(WKNavigationResponsePolicyDownload);
+            return;
+        }
+    }
+    decisionHandler(WKNavigationResponsePolicyAllow);
+}
+
+// 导航响应被转为下载:挂上 delegate,否则收不到 decideDestination / 完成 / 失败回调。
+- (void)webView:(WKWebView *)webView navigationResponse:(WKNavigationResponse *)navigationResponse didBecomeDownload:(WKDownload *)download API_AVAILABLE(ios(14.5)) {
+    download.delegate = self;
+}
+
+#pragma mark WKDownloadDelegate
+
+// 决定保存位置:Documents/videos/downloads/<建议文件名>。必须在此同步给出 destination。
+- (void)download:(WKDownload *)download decideDestinationUsingResponse:(NSURLResponse *)response
+                                                 suggestedFilename:(NSString *)suggestedFilename
+                                                 completionHandler:(void (^)(NSURL * _Nullable destination))completionHandler {
+    if (suggestedFilename.length == 0) {
+        suggestedFilename = @"未命名文件";
+    }
+    // 文件名可能带路径分隔符(恶意或异常响应),只取最后一段
+    suggestedFilename = suggestedFilename.lastPathComponent;
+    NSURL *destination = [self uniqueDestinationURLForFilename:suggestedFilename];
+    // 记下目标地址,供 downloadDidFinish: 展示(该回调不再回传 URL)
+    [self.downloadDestinations setObject:destination forKey:download];
+    completionHandler(destination);
+}
+
+// 下载完成:Toast 提示文件名与相对路径(相对沙盒 Documents)。
+- (void)downloadDidFinish:(WKDownload *)download {
+    NSURL *destination = [self.downloadDestinations objectForKey:download];
+    [self.downloadDestinations removeObjectForKey:download];
+    NSString *name = destination.lastPathComponent ?: @"文件";
+    NSString *docs = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject;
+    NSString *path = destination.path ?: @"";
+    NSString *display = [path hasPrefix:docs] ? [path substringFromIndex:docs.length + 1] : path;
+    [TSToast show:[NSString stringWithFormat:@"已下载: %@\n保存到: %@", name, display]];
+}
+
+- (void)download:(WKDownload *)download didFailWithError:(NSError *)error resumeData:(nullable NSData *)resumeData {
+    [self.downloadDestinations removeObjectForKey:download];
+    NSString *name = download.originalRequest.URL.lastPathComponent ?: @"";
+    NSLog(@"网页下载失败: %@ (%@)", name, error.localizedDescription);
+    [TSToast show:[NSString stringWithFormat:@"下载失败: %@", error.localizedDescription ?: @"未知错误"]];
 }
 
 // 清空当前积累的 m3u8 候选与来源标识(数组为 nil 时发消息也安全)
