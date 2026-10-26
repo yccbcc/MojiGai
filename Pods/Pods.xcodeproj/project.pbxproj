@@ -16,6 +16,7 @@
 			dependencies = (
 			);
 			name = "ffmpeg-kit-ios-full";
+			productName = "ffmpeg-kit-ios-full";
 		};
 /* End PBXAggregateTarget section */
 
@@ -36,29 +37,29 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		020CABE9AAC86A17F83389368FD6F8CB /* libavfilter.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = libavfilter.xcframework; path = "ffmpeg-kit-ios-full/libavfilter.xcframework"; sourceTree = "<group>"; };
-		0309CFD98C4F13F9D01E26AB6479CFE1 /* libswscale.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = libswscale.xcframework; path = "ffmpeg-kit-ios-full/libswscale.xcframework"; sourceTree = "<group>"; };
+		020CABE9AAC86A17F83389368FD6F8CB /* libavfilter.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcframework; name = libavfilter.xcframework; path = "ffmpeg-kit-ios-full/libavfilter.xcframework"; sourceTree = "<group>"; };
+		0309CFD98C4F13F9D01E26AB6479CFE1 /* libswscale.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcframework; name = libswscale.xcframework; path = "ffmpeg-kit-ios-full/libswscale.xcframework"; sourceTree = "<group>"; };
 		13AC97EF75CBEAC6621313F3F1EEB059 /* Pods-Mojigai-acknowledgements.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Mojigai-acknowledgements.plist"; sourceTree = "<group>"; };
-		166280E71AA36F48BD7A36AA2D23B816 /* libavcodec.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = libavcodec.xcframework; path = "ffmpeg-kit-ios-full/libavcodec.xcframework"; sourceTree = "<group>"; };
+		166280E71AA36F48BD7A36AA2D23B816 /* libavcodec.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcframework; name = libavcodec.xcframework; path = "ffmpeg-kit-ios-full/libavcodec.xcframework"; sourceTree = "<group>"; };
 		29D588CC2CAB8E091FF86694CE742A1D /* Pods-Mojigai-frameworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-Mojigai-frameworks.sh"; sourceTree = "<group>"; };
 		2CB74A84DF62E0DBFFA4715EF79E08A1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		2F6A3195BD95DF5E4D62C500997B7C88 /* Pods-Mojigai-dummy.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = "Pods-Mojigai-dummy.m"; sourceTree = "<group>"; };
-		380A22978741781B3B4A6614CB7EC099 /* Pods-Mojigai */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; name = "Pods-Mojigai"; path = Pods_Mojigai.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		4351B392F4F9B2B2A7116FB664F613DD /* libavutil.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = libavutil.xcframework; path = "ffmpeg-kit-ios-full/libavutil.xcframework"; sourceTree = "<group>"; };
+		380A22978741781B3B4A6614CB7EC099 /* Pods_Mojigai.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Mojigai.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		4351B392F4F9B2B2A7116FB664F613DD /* libavutil.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcframework; name = libavutil.xcframework; path = "ffmpeg-kit-ios-full/libavutil.xcframework"; sourceTree = "<group>"; };
 		4E8D39158423D5AA5DBE878C09CB61B1 /* Pods-Mojigai-Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = "Pods-Mojigai-Info.plist"; sourceTree = "<group>"; };
 		61D4D20A7C71F49D64BE7AAE1E89AB99 /* Pods-Mojigai.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Mojigai.release.xcconfig"; sourceTree = "<group>"; };
-		7DC960126A428FFD04E16C626DF6FA5E /* libswresample.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = libswresample.xcframework; path = "ffmpeg-kit-ios-full/libswresample.xcframework"; sourceTree = "<group>"; };
+		7DC960126A428FFD04E16C626DF6FA5E /* libswresample.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcframework; name = libswresample.xcframework; path = "ffmpeg-kit-ios-full/libswresample.xcframework"; sourceTree = "<group>"; };
 		80033CE1EFB352B9BAC50A2CC21176C5 /* ffmpeg-kit-ios-full.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "ffmpeg-kit-ios-full.release.xcconfig"; sourceTree = "<group>"; };
-		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; lastKnownFileType = text; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
+		9D940727FF8FB9C785EB98E56350EF41 /* Podfile */ = {isa = PBXFileReference; explicitFileType = text.script.ruby; includeInIndex = 1; indentWidth = 2; name = Podfile; path = ../Podfile; sourceTree = SOURCE_ROOT; tabWidth = 2; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		AD71A6832EA391FDC7E94D61885CD516 /* Pods-Mojigai-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-Mojigai-umbrella.h"; sourceTree = "<group>"; };
-		B4ACE5C626E201955FF1A4C928B77B9B /* ffmpegkit.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = ffmpegkit.xcframework; path = "ffmpeg-kit-ios-full/ffmpegkit.xcframework"; sourceTree = "<group>"; };
+		B4ACE5C626E201955FF1A4C928B77B9B /* ffmpegkit.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcframework; name = ffmpegkit.xcframework; path = "ffmpeg-kit-ios-full/ffmpegkit.xcframework"; sourceTree = "<group>"; };
 		BDA6972273F75D89BCE886C5CEFE894B /* ffmpeg-kit-ios-full.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "ffmpeg-kit-ios-full.debug.xcconfig"; sourceTree = "<group>"; };
 		BFBA0AE6654EC36DCE7D46EF354F35D6 /* Pods-Mojigai.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-Mojigai.debug.xcconfig"; sourceTree = "<group>"; };
-		D27051662B371F9021F610D888924D6D /* libavformat.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = libavformat.xcframework; path = "ffmpeg-kit-ios-full/libavformat.xcframework"; sourceTree = "<group>"; };
+		D27051662B371F9021F610D888924D6D /* libavformat.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcframework; name = libavformat.xcframework; path = "ffmpeg-kit-ios-full/libavformat.xcframework"; sourceTree = "<group>"; };
 		E076EE9530F4CFBFBF8F8A18DC7CB21F /* Pods-Mojigai-acknowledgements.markdown */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; path = "Pods-Mojigai-acknowledgements.markdown"; sourceTree = "<group>"; };
 		E336EACCC2AB2C03043AC2BB3B926E7B /* Pods-Mojigai.modulemap */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.module; path = "Pods-Mojigai.modulemap"; sourceTree = "<group>"; };
 		E4C41EB6E6166B806947C32B28C2FB68 /* ffmpeg-kit-ios-full-xcframeworks.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "ffmpeg-kit-ios-full-xcframeworks.sh"; sourceTree = "<group>"; };
-		F2CF12AFD8136876BE4C34742BC60301 /* libavdevice.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; name = libavdevice.xcframework; path = "ffmpeg-kit-ios-full/libavdevice.xcframework"; sourceTree = "<group>"; };
+		F2CF12AFD8136876BE4C34742BC60301 /* libavdevice.xcframework */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = wrapper.xcframework; name = libavdevice.xcframework; path = "ffmpeg-kit-ios-full/libavdevice.xcframework"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -87,14 +88,13 @@
 				9A1810C48CD3D9AC2F648D94E4A8097D /* Frameworks */,
 				E62BCBA9FBBC83265A5EECEA28B4B864 /* Support Files */,
 			);
-			name = "ffmpeg-kit-ios-full";
 			path = "ffmpeg-kit-ios-full";
 			sourceTree = "<group>";
 		};
 		4B103113012C1CEB9EF9CE2F8A1485F2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				380A22978741781B3B4A6614CB7EC099 /* Pods-Mojigai */,
+				380A22978741781B3B4A6614CB7EC099 /* Pods_Mojigai.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -207,7 +207,7 @@
 			);
 			name = "Pods-Mojigai";
 			productName = Pods_Mojigai;
-			productReference = 380A22978741781B3B4A6614CB7EC099 /* Pods-Mojigai */;
+			productReference = 380A22978741781B3B4A6614CB7EC099 /* Pods_Mojigai.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -228,8 +228,6 @@
 				en,
 			);
 			mainGroup = CF1408CF629C7361332E53B88F7BD30C;
-			minimizedProjectReferenceProxies = 0;
-			preferredProjectObjectVersion = 100;
 			productRefGroup = 4B103113012C1CEB9EF9CE2F8A1485F2 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -259,9 +257,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/ffmpeg-kit-ios-full/ffmpeg-kit-ios-full-xcframeworks-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy XCFrameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/ffmpeg-kit-ios-full/ffmpeg-kit-ios-full-xcframeworks-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -339,7 +341,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -458,7 +460,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_OBJC_WEAK = NO;
 				ENABLE_USER_SCRIPT_SANDBOXING = NO;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
