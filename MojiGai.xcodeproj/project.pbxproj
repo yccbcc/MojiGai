@@ -26,8 +26,10 @@
 		CD12000000000000000000E3 /* VideoListController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000D5 /* VideoListController.m */; };
 		CD12000000000000000000E4 /* VideoPreviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000D7 /* VideoPreviewController.m */; };
 		CD12000000000000000000E5 /* VideoMoveController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000DA /* VideoMoveController.m */; };
+		CW00000000000000000000F3 /* UIWindow+CurrentWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = CW00000000000000000000F2 /* UIWindow+CurrentWindow.m */; };
 		D53ABE752583803F006C45E1 /* ReatTxtManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D53ABE742583803F006C45E1 /* ReatTxtManager.m */; };
 		D56A12F222BB9D2C0083E2B9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A12F122BB9D2C0083E2B9 /* AppDelegate.m */; };
+		SD00000000000000000000E3 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = SD00000000000000000000E2 /* SceneDelegate.m */; };
 		D56A12F522BB9D2C0083E2B9 /* EditorController.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A12F422BB9D2C0083E2B9 /* EditorController.m */; };
 		D56A12F822BB9D2C0083E2B9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D56A12F622BB9D2C0083E2B9 /* Main.storyboard */; };
 		D56A12FA22BB9D2E0083E2B9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D56A12F922BB9D2E0083E2B9 /* Assets.xcassets */; };
@@ -84,7 +86,7 @@
 		4F9EB5D52A9893B9007E213E /* ImagePreviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImagePreviewController.m; sourceTree = "<group>"; };
 		4FDC45EE307CCDA300AD3894 /* ConvertVideoFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConvertVideoFormat.h; path = Mojigai/Tool/ConvertVideoFormat.h; sourceTree = SOURCE_ROOT; };
 		4FDC45EF307CCDA300AD3894 /* ConvertVideoFormat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ConvertVideoFormat.m; path = Mojigai/Tool/ConvertVideoFormat.m; sourceTree = SOURCE_ROOT; };
-		4FF4DD342D676E4800760281 /* MojiGai.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = MojiGai.entitlements; sourceTree = "<group>"; };
+		4FF4DD342D676E4800760281 /* Mojigai.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Mojigai.entitlements; sourceTree = "<group>"; };
 		6BF792DADDAA4F30713DA454 /* Pods-Mojigai.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Mojigai.release.xcconfig"; path = "Target Support Files/Pods-Mojigai/Pods-Mojigai.release.xcconfig"; sourceTree = "<group>"; };
 		88C46991F4C95F49A6E4D6DE /* Pods_Mojigai.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Mojigai.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B801881E4DFED14736F81C /* Pods-Mojigai.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Mojigai.debug.xcconfig"; path = "Target Support Files/Pods-Mojigai/Pods-Mojigai.debug.xcconfig"; sourceTree = "<group>"; };
@@ -105,8 +107,12 @@
 		D53ABE732583803F006C45E1 /* ReatTxtManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReatTxtManager.h; sourceTree = "<group>"; };
 		D53ABE742583803F006C45E1 /* ReatTxtManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReatTxtManager.m; sourceTree = "<group>"; };
 		D56A12ED22BB9D2C0083E2B9 /* Mojigai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mojigai.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CW00000000000000000000F1 /* UIWindow+CurrentWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIWindow+CurrentWindow.h"; sourceTree = "<group>"; };
+		CW00000000000000000000F2 /* UIWindow+CurrentWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+CurrentWindow.m"; sourceTree = "<group>"; };
 		D56A12F022BB9D2C0083E2B9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D56A12F122BB9D2C0083E2B9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		SD00000000000000000000E1 /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
+		SD00000000000000000000E2 /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
 		D56A12F322BB9D2C0083E2B9 /* EditorController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditorController.h; sourceTree = "<group>"; };
 		D56A12F422BB9D2C0083E2B9 /* EditorController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EditorController.m; sourceTree = "<group>"; };
 		D56A12F722BB9D2C0083E2B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -249,6 +255,8 @@
 				D5FFCAB0231D047800B965DA /* TSWebView.m */,
 				4F9EB5C62A9893B9007E213E /* TSToast.h */,
 				4F9EB5C72A9893B9007E213E /* TSToast.m */,
+				CW00000000000000000000F1 /* UIWindow+CurrentWindow.h */,
+				CW00000000000000000000F2 /* UIWindow+CurrentWindow.m */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -278,7 +286,7 @@
 		D56A12EF22BB9D2C0083E2B9 /* MojiGai */ = {
 			isa = PBXGroup;
 			children = (
-				4FF4DD342D676E4800760281 /* MojiGai.entitlements */,
+				4FF4DD342D676E4800760281 /* Mojigai.entitlements */,
 				4F9EB5AB2A989396007E213E /* Reader */,
 				4F9EB5D62A9893B9007E213E /* Image */,
 				CD12000000000000000000A0 /* Videos */,
@@ -287,6 +295,8 @@
 				D56A132222BB9D3B0083E2B9 /* redImage.png */,
 				D56A12F022BB9D2C0083E2B9 /* AppDelegate.h */,
 				D56A12F122BB9D2C0083E2B9 /* AppDelegate.m */,
+				SD00000000000000000000E1 /* SceneDelegate.h */,
+				SD00000000000000000000E2 /* SceneDelegate.m */,
 				D56A12F322BB9D2C0083E2B9 /* EditorController.h */,
 				D56A12F422BB9D2C0083E2B9 /* EditorController.m */,
 				MC0000000000000000000C01 /* MainController.h */,
@@ -305,7 +315,7 @@
 				D56A12FE22BB9D2E0083E2B9 /* Info.plist */,
 				D56A12FF22BB9D2E0083E2B9 /* main.m */,
 			);
-			path = MojiGai;
+			path = Mojigai;
 			sourceTree = "<group>";
 		};
 		D56A130822BB9D2E0083E2B9 /* MojiGaiTests */ = {
@@ -314,7 +324,7 @@
 				D56A130922BB9D2E0083E2B9 /* MojiGaiTests.m */,
 				D56A130B22BB9D2E0083E2B9 /* Info.plist */,
 			);
-			path = MojiGaiTests;
+			path = MojigaiTests;
 			sourceTree = "<group>";
 		};
 		D56A131322BB9D2E0083E2B9 /* MojiGaiUITests */ = {
@@ -323,7 +333,7 @@
 				D56A131422BB9D2E0083E2B9 /* MojiGaiUITests.m */,
 				D56A131622BB9D2E0083E2B9 /* Info.plist */,
 			);
-			path = MojiGaiUITests;
+			path = MojigaiUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -519,6 +529,8 @@
 				D56A130022BB9D2E0083E2B9 /* main.m in Sources */,
 				D5FFCAB1231D047800B965DA /* TSWebView.m in Sources */,
 				D56A12F222BB9D2C0083E2B9 /* AppDelegate.m in Sources */,
+				SD00000000000000000000E3 /* SceneDelegate.m in Sources */,
+				CW00000000000000000000F3 /* UIWindow+CurrentWindow.m in Sources */,
 				4FDC45F0307CCDA300AD3894 /* ConvertVideoFormat.m in Sources */,
 				4F9EB5B42A98A23D007E213E /* PageController.m in Sources */,
 				4F9EB5C22A9893B9007E213E /* TextReplaceManager.m in Sources */,
@@ -764,7 +776,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = DVP8WVES9A;
-				INFOPLIST_FILE = MojiGaiTests/Info.plist;
+				INFOPLIST_FILE = MojigaiTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -783,7 +795,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = DVP8WVES9A;
-				INFOPLIST_FILE = MojiGaiTests/Info.plist;
+				INFOPLIST_FILE = MojigaiTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -801,7 +813,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = DVP8WVES9A;
-				INFOPLIST_FILE = MojiGaiUITests/Info.plist;
+				INFOPLIST_FILE = MojigaiUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -819,7 +831,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = DVP8WVES9A;
-				INFOPLIST_FILE = MojiGaiUITests/Info.plist;
+				INFOPLIST_FILE = MojigaiUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

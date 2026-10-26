@@ -14,6 +14,7 @@
 #import "VideoStore.h"
 #import "M3U8DownloadController.h"
 #import "TSToast.h"
+#import "UIWindow+CurrentWindow.h"
 
 @interface WebBrowserView () <WKUIDelegate, WKNavigationDelegate, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) TSWebView *wkWeb;
@@ -207,13 +208,7 @@ static WebBrowserView *sSharedBrowser = nil;
 
 + (void)showOnWindow {
     WebBrowserView *b = [WebBrowserView sharedBrowser];
-    UIWindow *win = nil;
-    for (UIWindow *w in [UIApplication sharedApplication].windows) {
-        if (w.isKeyWindow) { win = w; break; }
-    }
-    if (!win) {
-        win = [UIApplication sharedApplication].windows.firstObject;
-    }
+    UIWindow *win = [UIWindow currentKeyWindow];
     if (!win) return;
 
     b.frame = win.bounds;

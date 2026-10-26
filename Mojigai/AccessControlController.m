@@ -9,6 +9,7 @@
 #import "AccessControlController.h"
 #import "MainController.h"
 #import "TSToast.h"
+#import "UIWindow+CurrentWindow.h"
 
 @interface AccessControlController () <UITextFieldDelegate>
 @end
@@ -232,7 +233,9 @@
         nav.navigationBar.barTintColor = UIColor.whiteColor;
     }
 
-    [UIApplication sharedApplication].delegate.window.rootViewController = nav;
+    // Scene 生命周期下 window 由 SceneDelegate 持有,优先用自身所在窗口,回退当前 key window
+    UIWindow *window = self.view.window ?: [UIWindow currentKeyWindow];
+    window.rootViewController = nav;
 }
 
 #pragma mark - textField代理:仅数字、回车=确定

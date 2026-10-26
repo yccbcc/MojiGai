@@ -7,12 +7,14 @@
 //
 
 #import "TSToast.h"
+#import "UIWindow+CurrentWindow.h"
 
 @implementation TSToast
 
 + (void)show:(NSString *)message{
     if (message.length == 0) return;
-    UIWindow *window = [UIApplication sharedApplication].keyWindow;
+    UIWindow *window = [UIWindow currentKeyWindow];
+    if (!window) return;
     UILabel *toast = [[UILabel alloc] init];
     toast.text = message;
     toast.textColor = [UIColor whiteColor];
