@@ -199,12 +199,10 @@ UIScrollViewDelegate
 
     if (textField == _rightTf){
         NSString *_leftText = _leftTf.text;
-        NSString *rightTextBase641 = @"5byg5pS555Sf";
-        NSString *rightTextBase642 = @"5LqR5bOw";
         // 常量为 Base64 编码,使用前先解码成明文,否则替换会拿编码串去匹配
-        NSString *rightText1 = MojiDecodeBase64(rightTextBase641);
-        NSString *rightText2 = MojiDecodeBase64(rightTextBase642);
-        NSString *_rightText = _rightTf.text.length > 0 ? _rightTf.text : rightText1;
+        NSString *rightText1 = MojiDecodeBase64(@"5byg5pS555Sf");
+        NSString *rightText2 = MojiDecodeBase64(@"5LqR5bOw");
+        NSString *_rightText = [_rightTf.text isEqualToString:@"1"] ? rightText1 : _rightTf.text;
         _rightText = [_rightText isEqualToString:@"2"] ? rightText2 : _rightText;
         if (_leftText.length > 0) {
             // 替换规则见 TextReplaceManager
