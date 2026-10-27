@@ -30,7 +30,9 @@
 ```
 
 - **作用**：当页面请求**打开一个新窗口/标签页**时调用。**WKWebView 默认不会自己开新窗口**，必须由本回调决定。
-- **本项目处理方式**：不返回新窗口，而是 `return nil`，同时把请求 `loadRequest:` 到**当前 webview** 里，让 `target="_blank"` 表现为「在当前页打开」。
+- **本项目处理方式**：不返回新窗口（始终 `return nil`），但**不是无脑拉回**。按来源分三种：
+  - 当前页是**搜索引擎**，或新地址与当前页**同主域名** → `clearM3U8Candidates` 后 `loadRequest:` 拉回当前页，让 `target="_blank"` 表现为「在当前页打开」；
+  - 其余**跨域弹窗**（多为广告/引流）→ 直接丢弃，既不 `loadRequest` 也不开窗口。
 
 当前代码（`WebBrowserView.m`）：
 
@@ -40,13 +42,24 @@
                forNavigationAction:(WKNavigationAction *)navigationAction
                     windowFeatures:(WKWindowFeatures *)windowFeatures {
     if (!navigationAction.targetFrame.isMainFrame) {
-        [webView loadRequest:navigationAction.request];   // 拉回当前页打开
+        NSString *currentMainDomain = [self mainDomainForURL:webView.URL];
+        NSString *newMainDomain = [self mainDomainForURL:navigationAction.request.URL];
+        BOOL sameDomain = newMainDomain.length > 0 && [newMainDomain isEqualToString:currentMainDomain];
+        if ([self isSearchEngineURL:webView.URL] || sameDomain) {
+            // 弹窗被拉回当前页等同于真正的页面切换,清掉旧页积累的 m3u8 候选
+            [self clearM3U8Candidates];
+            [webView loadRequest:navigationAction.request];
+        } else {
+            NSLog(@"拦截跨域弹窗: %@ (当前主域: %@)", ...);
+        }
     }
     return nil;
 }
 ```
 
-> ⚠️ 若去掉 `loadRequest` 改成「永远直接 `return nil`」，则 `target="_blank"` 点击**不会有任何反应**（新窗口不开、当前页也不跳）。这行 `loadRequest` 是让 `target="_blank` 有反应的**唯一来源**。
+> ⚠️ `loadRequest` 仍是 `target="_blank"`「有反应」的唯一来源：命中放行/同域条件时才会拉回；不命中（跨域广告弹窗）时既不 `loadRequest` 也不开新窗口，点击**没有任何反应**——这正是拦截跨域引流的目的。
+>
+> 判定辅助：`isSearchEngineURL:` 取主域最前面的品牌段比对 `google/bing/baidu/sogou`（这样 `google.co.jp` 等各国域也归为 `google`）；`mainDomainForURL:` 会正确处理 `com.cn`/`co.uk` 等多段公共后缀。
 
 ---
 
@@ -65,21 +78,25 @@ WebView 判定「这是一个开新窗口的请求」
         │       targetFrame 为 nil → 对 nil 发消息 → 返回 NO
         │       → !NO == YES → 进入分支
         ▼
-执行 [webView loadRequest:navigationAction.request]   （在当前 webview 加载新 URL）
-        ▼
-这次 loadRequest 又触发一次：decidePolicyForNavigationAction
-        │   navigationType == WKNavigationTypeOther（程序化加载）
-        │   targetFrame == nil → isMainFrame == NO
-        ▼
-正常加载新页面，随后 didCommitNavigation / didFinishNavigation
+判断来源：当前页是搜索引擎 || 新地址与当前页同主域？
+        │
+        ├── 命中 → [self clearM3U8Candidates] 后 [webView loadRequest:...]（拉回当前页）
+        │           ▼
+        │       这次 loadRequest 又触发一次：decidePolicyForNavigationAction
+        │           │   navigationType == WKNavigationTypeOther（程序化加载）
+        │           │   targetFrame == nil → isMainFrame == NO
+        │           ▼
+        │       正常加载新页面，随后 didCommitNavigation / didFinishNavigation
+        │
+        └── 不命中（跨域弹窗）→ 不 loadRequest、只 return nil（丢弃，无任何反应）
 ```
 
 **要点：**
 
 1. `target="_blank"` **首先触发的是 `createWebViewWithConfiguration`**，不是 `decidePolicyForNavigationAction`。
 2. 它的 `navigationAction.targetFrame == nil`，所以 `targetFrame.isMainFrame` 恒为 `NO`。
-3. 我们把它转成 `loadRequest` 后，才产生一次 `navigationType == Other` 的常规导航决策。
-4. 结论：`target="_blank"` 这条路**不会命中**「`isMainFrame && LinkActivated`」的清空条件，所以旧 m3u8 候选不会被清（靠 URL 去重兜底）。
+3. **只有命中「搜索引擎 或 同主域」才会被转成 `loadRequest`**，进而产生一次 `navigationType == Other` 的常规导航决策；跨域弹窗直接被丢弃，不产生任何导航。
+4. 拉回前已显式调用 `clearM3U8Candidates`，所以这条路**已经不再靠 URL 去重兜底**——旧页的 m3u8 候选会在拉回时主动清空。
 
 ---
 
@@ -89,7 +106,7 @@ WebView 判定「这是一个开新窗口的请求」
 |---|---|---|---|---|---|---|
 | **首次打开网页**（`loadURL` / `loadSavedURLIfNeeded` / `showOnWindowWithURL`） | 不触发 | 触发一次（程序化 `loadRequest`） | nil | NO | `Other` | ✅ 在 `loadURL` 里主动清空 |
 | **同窗口点链接**（普通 `<a>`） | 不触发 | 触发一次 | 主框架对象 | YES | `LinkActivated` | ✅ 命中 `isMainFrame && LinkActivated` |
-| **`target="_blank"` / `window.open`** | ✅ 触发（入口在此） | 转成 `loadRequest` 后再触发一次 | nil（入口与转加载后均为 nil） | NO | 转加载后 `Other` | ❌ 不命中清空条件 |
+| **`target="_blank"` / `window.open`** | ✅ 触发（入口在此） | 仅当搜索引擎/同主域时转 `loadRequest` 后再触发一次（跨域弹窗不触发） | nil（入口与转加载后均为 nil） | NO | 转加载后 `Other` | ✅ 命中放行时拉回前显式 `clearM3U8Candidates`（跨域丢弃则无导航） |
 | **页内 `location.href=...` 跳转** | 不触发 | 触发一次 | 主框架对象 | YES | `Other` | ❌ 不清（属前端/广告跳转，需按域名过滤才能拦） |
 | **服务端 302 / meta refresh** | 不触发 | 触发（重定向链每一跳都会触发） | 主框架 | YES | `Other` | ❌ 不清 |
 | **前进/后退**（`goBack`/`goForward` / 右滑） | 不触发 | 触发一次 | 主框架 | YES | `BackForward` | ❌ 不清（避免误删当前页候选） |
@@ -129,7 +146,7 @@ WebView 判定「这是一个开新窗口的请求」
 **为什么不在所有主框架导航里都清空？**
 因为重定向、前端 JS 跳转、前进/后退等 `Other` 导航可能在**当前页 m3u8 已被捕获之后**才触发，无差别清空会把刚抓到的地址抹掉，表现为「跳转后新页面的 m3u8 没捕获到」。
 
-**已知缺口**：`target="_blank"` 经 `createWebViewWithConfiguration` → `loadRequest` 这条路不命中清空条件，旧候选会保留（URL 去重兜底，通常不影响使用）。如需补齐，可在 `createWebViewWithConfiguration` 的 `loadRequest` 前显式调用 `clearM3U8Candidates`。
+**已补齐**：`target="_blank"` 经 `createWebViewWithConfiguration` 拉回当前页时，会在 `loadRequest` 前显式调用 `clearM3U8Candidates`（弹窗拉回等同于真正的页面切换）；跨域弹窗被丢弃时不产生导航，无需清理。因此旧候选不再残留。
 
 m3u8 的**捕获**本身由 `TSWebView` 注入的 JS（`WKUserScript` + `AtDocumentStart`，`forMainFrameOnly:NO`）完成，**每个新页面自动重注入并重跑**，所以清空后新页面照常重新捕获。
 
@@ -139,7 +156,7 @@ m3u8 的**捕获**本身由 `TSWebView` 注入的 JS（`WKUserScript` + `AtDocum
 
 | 行为 | 控制回调 | 手段 |
 |---|---|---|
-| 弹窗 / `window.open` | `createWebViewWithConfiguration` | 命中黑名单则 `return nil` 且不 `loadRequest` |
+| 弹窗 / `window.open` | `createWebViewWithConfiguration` | 搜索引擎/同主域→拉回当前页；其余跨域弹窗→只 `return nil` 不 `loadRequest`（丢弃） |
 | 同窗口自动跳转（`location.href` 等） | `decidePolicyForNavigationAction` | 命中黑名单则 `decisionHandler(...Cancel)` |
 | 302 / meta refresh | `decidePolicyForNavigationAction`（必要时 `decidePolicyForNavigationResponse`） | 同上按 URL 过滤 |
 | JS `alert/confirm` 弹窗 | `WKUIDelegate` `runJavaScriptAlertPanel...` 等 | 忽略不调 completion |
