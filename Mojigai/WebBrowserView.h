@@ -21,7 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)sharedBrowser;
 
 /// 彻底销毁全局单例并清空网页缓存(磁盘/内存缓存、Cookie 等);下次打开时重建并重新加载。
-+ (void)destroySharedBrowser;
+/// 途中会取消进行中的网页下载,返回被取消的个数(0 表示当时没有下载)。
++ (NSUInteger)destroySharedBrowser;
 
 /// 把网页视图挂到 key window 全屏显示;再次调用直接复用原实例,不重新加载 URL。
 + (void)showOnWindow;

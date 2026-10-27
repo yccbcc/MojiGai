@@ -36,6 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 指定子文件夹下的所有图片路径(升序)
 + (NSArray<NSString *> *)imagePathsInSubfolder:(NSString *)name;
 
+/// 按扩展名判断文件名是否为图片(jpg/jpeg/png/gif/heic/heif/webp/bmp/tiff/tif)
++ (BOOL)isImageName:(NSString *)name;
+
 /// 把外部选中的图片复制到 Images 目录，返回复制后的本地路径；失败返回 nil
 + (nullable NSString *)saveImageFromURL:(NSURL *)url error:(NSError **)error;
 

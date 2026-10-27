@@ -12,6 +12,7 @@
 #import "HTMLTextTool.h"
 #import "VideoDownloadTool.h"
 #import "VideoStore.h"
+#import "ImageStore.h"
 #import "M3U8DownloadController.h"
 #import "TSToast.h"
 #import "UIWindow+CurrentWindow.h"
@@ -37,6 +38,9 @@
 @property (nonatomic, strong) VideoDownloadTool *downloadTool;
 // 网页原生下载:download -> 落盘地址映射(懒加载,weak key)
 @property (nonatomic, strong) NSMapTable<WKDownload *, NSURL *> *downloadDestinations;
+// 已接管且尚未结束的网页下载。销毁单例时需逐个取消,否则 weak delegate 失效后回调全部失联。
+// weak 表:WebKit 在结束/取消后会释放 WKDownload,条目自动消失。
+@property (nonatomic, strong) NSHashTable<WKDownload *> *activeDownloads;
 @end
 
 @implementation WebBrowserView
@@ -186,11 +190,28 @@ static WebBrowserView *sSharedBrowser = nil;
     return sSharedBrowser;
 }
 
-// 彻底销毁全局网页视图:停止加载 → 断开代理/回调 → 移出 window → 释放实例 → 清空网页数据。
+// 彻底销毁全局网页视图:取消进行中下载 → 停止加载 → 断开代理/回调 → 移出 window → 释放实例 → 清空网页数据。
 // 之后再次打开 Web 时 sharedBrowser 会新建,并按 lastWebURL 重新加载,相当于重置整个网页模块。
-+ (void)destroySharedBrowser {
+// WKDownload.delegate 是 weak,实例一释放所有回调就哑了——既不知道成败,沙盒里还可能留下半截文件,
+// 故先显式取消,并把取消个数回传给调用方并入口径一致的提示里。返回被取消的下载个数。
++ (NSUInteger)destroySharedBrowser {
     WebBrowserView *b = sSharedBrowser;
-    if (!b) return;
+    if (!b) return 0;
+
+    // 先取消进行中的网页下载(不保留 resumeData:重置即意味着放弃这一次)。
+    // 目标地址要在清 map 前先取出来:WebKit 是直接往 destination 写字节的,中断会留下截断文件。
+    NSArray<WKDownload *> *inFlight = [b.activeDownloads allObjects];
+    NSMutableArray<NSURL *> *partials = [NSMutableArray array];
+    for (WKDownload *d in inFlight) {
+        NSURL *dest = [b.downloadDestinations objectForKey:d];
+        if (dest) { [partials addObject:dest]; }
+        [d cancel:nil];
+    }
+    [b.activeDownloads removeAllObjects];
+    [b.downloadDestinations removeAllObjects];
+    for (NSURL *url in partials) {
+        [[NSFileManager defaultManager] removeItemAtURL:url error:nil];
+    }
 
     // 打断进行中的加载与回调,避免异步回调触达即将释放的实例
     [b.wkWeb stopLoading];
@@ -206,6 +227,8 @@ static WebBrowserView *sSharedBrowser = nil;
     [store removeDataOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
                modifiedSince:[NSDate dateWithTimeIntervalSince1970:0]
            completionHandler:^{}];
+
+    return inFlight.count;
 }
 
 + (void)showOnWindow {
@@ -659,10 +682,19 @@ static WebBrowserView *sSharedBrowser = nil;
     return _downloadDestinations;
 }
 
-// Documents/videos/downloads 目录,不存在时自动创建。放在 videos 下,下载的视频会直接作为「downloads」
-// 文件夹出现在视频列表里。videos 根目录由 VideoStore 统一维护(不存在会自动建)。WKDownload 需 iOS 14.5+。
-- (NSString *)downloadsDirectory {
-    NSString *dir = [[VideoStore videosDirectory] stringByAppendingPathComponent:@"downloads"];
+- (NSHashTable<WKDownload *> *)activeDownloads {
+    if (!_activeDownloads) {
+        _activeDownloads = [NSHashTable weakObjectsHashTable];
+    }
+    return _activeDownloads;
+}
+
+// 下载根目录按文件类型分流:图片存 Images、其余存 videos,各自下再建 downloads 子目录,
+// 与两个库的目录结构对齐(视频会作为「downloads」文件夹出现在视频列表里)。
+// 根目录由 VideoStore / ImageStore 统一维护(不存在会自动建)。WKDownload 需 iOS 14.5+。
+- (NSString *)downloadsDirectoryForFilename:(NSString *)filename {
+    NSString *root = [ImageStore isImageName:filename] ? [ImageStore imagesDirectory] : [VideoStore videosDirectory];
+    NSString *dir = [root stringByAppendingPathComponent:@"downloads"];
     NSFileManager *fm = [NSFileManager defaultManager];
     if (![fm fileExistsAtPath:dir]) {
         [fm createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
@@ -672,7 +704,7 @@ static WebBrowserView *sSharedBrowser = nil;
 
 // 目标文件已存在时在名尾追加 (1)(2)… 顺延,避免覆盖旧文件
 - (NSURL *)uniqueDestinationURLForFilename:(NSString *)filename {
-    NSString *dir = [self downloadsDirectory];
+    NSString *dir = [self downloadsDirectoryForFilename:filename];
     NSString *base = filename.stringByDeletingPathExtension;
     NSString *ext = filename.pathExtension;
     NSString *candidate = filename;
@@ -697,7 +729,14 @@ static WebBrowserView *sSharedBrowser = nil;
         // 故必须先保证字符串非空再取 range。
         BOOL isAttachment = disposition.length > 0 &&
                             [disposition rangeOfString:@"attachment" options:NSCaseInsensitiveSearch].location != NSNotFound;
-        if (!navigationResponse.canShowMIMEType || isAttachment) {
+        // 两种语义必须分开看:
+        //   • 服务器明确标 attachment —— 无论来自主框架还是 iframe,都是用户意图的真下载;
+        //   • 仅「渲染不了」—— 很可能是隐藏 iframe 的 XML/JSON 回调响应、或广告 iframe 拉的资源。
+        // 若不区分就一律转下载,会把页面本体之外的响应偷偷存成文件:iframe 拿不到它要的内容、
+        // 主页面又不跳转,表现就是「点了没反应」,还平白在 downloads 里堆垃圾。
+        BOOL shouldDownload = isAttachment ||
+                              (!navigationResponse.canShowMIMEType && navigationResponse.isForMainFrame);
+        if (shouldDownload) {
             // 转交 WKDownload 通道:随后经 didBecomeDownload 回调拿到 download,再由 downloadDelegate 决定落盘位置
             decisionHandler(WKNavigationResponsePolicyDownload);
             return;
@@ -707,13 +746,16 @@ static WebBrowserView *sSharedBrowser = nil;
 }
 
 // 导航响应被转为下载:挂上 delegate,否则收不到 decideDestination / 完成 / 失败回调。
+// 同时登记到 activeDownloads:从接管的这一刻起就必须在销毁时能取消它(此时还不一定已决定落盘地址)。
 - (void)webView:(WKWebView *)webView navigationResponse:(WKNavigationResponse *)navigationResponse didBecomeDownload:(WKDownload *)download API_AVAILABLE(ios(14.5)) {
     download.delegate = self;
+    [self.activeDownloads addObject:download];
 }
 
 #pragma mark WKDownloadDelegate
 
-// 决定保存位置:Documents/videos/downloads/<建议文件名>。必须在此同步给出 destination。
+// 决定保存位置:按扩展名分流,图片→Documents/Images/downloads/<建议文件名>,其余→Documents/videos/downloads/。
+// 必须在此同步给出 destination。
 - (void)download:(WKDownload *)download decideDestinationUsingResponse:(NSURLResponse *)response
                                                  suggestedFilename:(NSString *)suggestedFilename
                                                  completionHandler:(void (^)(NSURL * _Nullable destination))completionHandler {
@@ -730,6 +772,7 @@ static WebBrowserView *sSharedBrowser = nil;
 
 // 下载完成:Toast 提示文件名与相对路径(相对沙盒 Documents)。
 - (void)downloadDidFinish:(WKDownload *)download {
+    [self.activeDownloads removeObject:download];
     NSURL *destination = [self.downloadDestinations objectForKey:download];
     [self.downloadDestinations removeObjectForKey:download];
     NSString *name = destination.lastPathComponent ?: @"文件";
@@ -740,7 +783,14 @@ static WebBrowserView *sSharedBrowser = nil;
 }
 
 - (void)download:(WKDownload *)download didFailWithError:(NSError *)error resumeData:(nullable NSData *)resumeData {
+    [self.activeDownloads removeObject:download];
+    NSURL *destination = [self.downloadDestinations objectForKey:download];
     [self.downloadDestinations removeObjectForKey:download];
+    // 失败/取消同样会在目标地址留下截断文件。只有在拿不到 resumeData 时才删:
+    // 有 resumeData 说明这半截文件是续传凭据,即便本项目当前没接续传也不该擅自销毁。
+    if (!resumeData) {
+        [[NSFileManager defaultManager] removeItemAtURL:destination error:nil];
+    }
     NSString *name = download.originalRequest.URL.lastPathComponent ?: @"";
     NSLog(@"网页下载失败: %@ (%@)", name, error.localizedDescription);
     [TSToast show:[NSString stringWithFormat:@"下载失败: %@", error.localizedDescription ?: @"未知错误"]];

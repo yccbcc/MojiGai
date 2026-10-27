@@ -54,8 +54,12 @@
                                                            preferredStyle:UIAlertControllerStyleAlert];
     [alert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil]];
     [alert addAction:[UIAlertAction actionWithTitle:@"确认清理" style:UIAlertActionStyleDestructive handler:^(UIAlertAction *action) {
-        [WebBrowserView destroySharedBrowser];
-        [TSToast show:@"已销毁网页并清空缓存"];
+        // 返回被取消的下载数:销毁会断开 WKDownload 的 weak delegate,不显式取消的话这些下载会静默失联,
+        // 沙盒里留下半截文件。这里合并成一条提示(TSToast 同位置叠 label,分两条弹会重叠)。
+        NSUInteger cancelled = [WebBrowserView destroySharedBrowser];
+        NSString *msg = cancelled > 0 ? [NSString stringWithFormat:@"已销毁网页并清空缓存\n取消了 %ld 个进行中的下载", (long)cancelled]
+                                      : @"已销毁网页并清空缓存";
+        [TSToast show:msg];
     }]];
     [self presentViewController:alert animated:YES completion:nil];
 }
