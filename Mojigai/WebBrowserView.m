@@ -692,7 +692,11 @@ static WebBrowserView *sSharedBrowser = nil;
         if ([navigationResponse.response isKindOfClass:[NSHTTPURLResponse class]]) {
             disposition = [(NSHTTPURLResponse *)navigationResponse.response allHeaderFields][@"Content-Disposition"];
         }
-        BOOL isAttachment = [disposition rangeOfString:@"attachment" options:NSCaseInsensitiveSearch].location != NSNotFound;
+        // 注意:无 Content-Disposition 时 disposition 为 nil,而给 nil 发消息返回的 NSRange 是全零({0,0}),
+        // location 为 0 而非 NSNotFound,会让判断恒为真——所有普通网页都被当成附件下载。
+        // 故必须先保证字符串非空再取 range。
+        BOOL isAttachment = disposition.length > 0 &&
+                            [disposition rangeOfString:@"attachment" options:NSCaseInsensitiveSearch].location != NSNotFound;
         if (!navigationResponse.canShowMIMEType || isAttachment) {
             // 转交 WKDownload 通道:随后经 didBecomeDownload 回调拿到 download,再由 downloadDelegate 决定落盘位置
             decisionHandler(WKNavigationResponsePolicyDownload);
