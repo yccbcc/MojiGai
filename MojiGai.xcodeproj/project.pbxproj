@@ -29,7 +29,6 @@
 		CW00000000000000000000F3 /* UIWindow+CurrentWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = CW00000000000000000000F2 /* UIWindow+CurrentWindow.m */; };
 		D53ABE752583803F006C45E1 /* ReatTxtManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D53ABE742583803F006C45E1 /* ReatTxtManager.m */; };
 		D56A12F222BB9D2C0083E2B9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A12F122BB9D2C0083E2B9 /* AppDelegate.m */; };
-		SD00000000000000000000E3 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = SD00000000000000000000E2 /* SceneDelegate.m */; };
 		D56A12F522BB9D2C0083E2B9 /* EditorController.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A12F422BB9D2C0083E2B9 /* EditorController.m */; };
 		D56A12F822BB9D2C0083E2B9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D56A12F622BB9D2C0083E2B9 /* Main.storyboard */; };
 		D56A12FA22BB9D2E0083E2B9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D56A12F922BB9D2E0083E2B9 /* Assets.xcassets */; };
@@ -39,11 +38,12 @@
 		D56A131522BB9D2E0083E2B9 /* MojiGaiUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A131422BB9D2E0083E2B9 /* MojiGaiUITests.m */; };
 		D56A132322BB9D3B0083E2B9 /* redImage.png in Resources */ = {isa = PBXBuildFile; fileRef = D56A132222BB9D3B0083E2B9 /* redImage.png */; };
 		D5FFCAB1231D047800B965DA /* TSWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FFCAB0231D047800B965DA /* TSWebView.m */; };
+		DL12000000000000000000A3 /* M3U8DownloadController.m in Sources */ = {isa = PBXBuildFile; fileRef = DL12000000000000000000A2 /* M3U8DownloadController.m */; };
 		MC0000000000000000000C03 /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = MC0000000000000000000C02 /* MainController.m */; };
 		SC0000000000000000000D03 /* SourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = SC0000000000000000000D02 /* SourceController.m */; };
-		WB12000000000000000000F3 /* WebBrowserView.m in Sources */ = {isa = PBXBuildFile; fileRef = WB12000000000000000000F2 /* WebBrowserView.m */; };
-		DL12000000000000000000A3 /* M3U8DownloadController.m in Sources */ = {isa = PBXBuildFile; fileRef = DL12000000000000000000A2 /* M3U8DownloadController.m */; };
+		SD00000000000000000000E3 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = SD00000000000000000000E2 /* SceneDelegate.m */; };
 		VD11000000000000000000B3 /* VideoDownloadTool.m in Sources */ = {isa = PBXBuildFile; fileRef = VD11000000000000000000B2 /* VideoDownloadTool.m */; };
+		WB12000000000000000000F3 /* WebBrowserView.m in Sources */ = {isa = PBXBuildFile; fileRef = WB12000000000000000000F2 /* WebBrowserView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,15 +104,13 @@
 		CD12000000000000000000D8 /* VideoPreviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoPreviewController.h; sourceTree = "<group>"; };
 		CD12000000000000000000D9 /* VideoMoveController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoMoveController.h; sourceTree = "<group>"; };
 		CD12000000000000000000DA /* VideoMoveController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoMoveController.m; sourceTree = "<group>"; };
+		CW00000000000000000000F1 /* UIWindow+CurrentWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIWindow+CurrentWindow.h"; sourceTree = "<group>"; };
+		CW00000000000000000000F2 /* UIWindow+CurrentWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+CurrentWindow.m"; sourceTree = "<group>"; };
 		D53ABE732583803F006C45E1 /* ReatTxtManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReatTxtManager.h; sourceTree = "<group>"; };
 		D53ABE742583803F006C45E1 /* ReatTxtManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReatTxtManager.m; sourceTree = "<group>"; };
 		D56A12ED22BB9D2C0083E2B9 /* Mojigai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mojigai.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		CW00000000000000000000F1 /* UIWindow+CurrentWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIWindow+CurrentWindow.h"; sourceTree = "<group>"; };
-		CW00000000000000000000F2 /* UIWindow+CurrentWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+CurrentWindow.m"; sourceTree = "<group>"; };
 		D56A12F022BB9D2C0083E2B9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D56A12F122BB9D2C0083E2B9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		SD00000000000000000000E1 /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
-		SD00000000000000000000E2 /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
 		D56A12F322BB9D2C0083E2B9 /* EditorController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditorController.h; sourceTree = "<group>"; };
 		D56A12F422BB9D2C0083E2B9 /* EditorController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EditorController.m; sourceTree = "<group>"; };
 		D56A12F722BB9D2C0083E2B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -129,16 +127,18 @@
 		D56A132222BB9D3B0083E2B9 /* redImage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = redImage.png; sourceTree = "<group>"; };
 		D5FFCAAF231D047800B965DA /* TSWebView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TSWebView.h; sourceTree = "<group>"; };
 		D5FFCAB0231D047800B965DA /* TSWebView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TSWebView.m; sourceTree = "<group>"; };
+		DL12000000000000000000A1 /* M3U8DownloadController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = M3U8DownloadController.h; sourceTree = "<group>"; };
+		DL12000000000000000000A2 /* M3U8DownloadController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = M3U8DownloadController.m; sourceTree = "<group>"; };
 		MC0000000000000000000C01 /* MainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		MC0000000000000000000C02 /* MainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
 		SC0000000000000000000D01 /* SourceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SourceController.h; sourceTree = "<group>"; };
 		SC0000000000000000000D02 /* SourceController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SourceController.m; sourceTree = "<group>"; };
-		WB12000000000000000000F1 /* WebBrowserView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebBrowserView.h; sourceTree = "<group>"; };
-		WB12000000000000000000F2 /* WebBrowserView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebBrowserView.m; sourceTree = "<group>"; };
-		DL12000000000000000000A1 /* M3U8DownloadController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = M3U8DownloadController.h; sourceTree = "<group>"; };
-		DL12000000000000000000A2 /* M3U8DownloadController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = M3U8DownloadController.m; sourceTree = "<group>"; };
+		SD00000000000000000000E1 /* SceneDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SceneDelegate.h; sourceTree = "<group>"; };
+		SD00000000000000000000E2 /* SceneDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SceneDelegate.m; sourceTree = "<group>"; };
 		VD11000000000000000000B1 /* VideoDownloadTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VideoDownloadTool.h; sourceTree = "<group>"; };
 		VD11000000000000000000B2 /* VideoDownloadTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoDownloadTool.m; sourceTree = "<group>"; };
+		WB12000000000000000000F1 /* WebBrowserView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = WebBrowserView.h; sourceTree = "<group>"; };
+		WB12000000000000000000F2 /* WebBrowserView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = WebBrowserView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -264,9 +264,9 @@
 		D56A12E422BB9D2C0083E2B9 = {
 			isa = PBXGroup;
 			children = (
-				D56A12EF22BB9D2C0083E2B9 /* MojiGai */,
-				D56A130822BB9D2E0083E2B9 /* MojiGaiTests */,
-				D56A131322BB9D2E0083E2B9 /* MojiGaiUITests */,
+				D56A12EF22BB9D2C0083E2B9 /* Mojigai */,
+				D56A130822BB9D2E0083E2B9 /* MojigaiTests */,
+				D56A131322BB9D2E0083E2B9 /* MojigaiUITests */,
 				D56A12EE22BB9D2C0083E2B9 /* Products */,
 				B5D5E349A1B56C591D0FA94F /* Pods */,
 				1FE41AC08B2B374C3B60FB42 /* Frameworks */,
@@ -283,7 +283,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		D56A12EF22BB9D2C0083E2B9 /* MojiGai */ = {
+		D56A12EF22BB9D2C0083E2B9 /* Mojigai */ = {
 			isa = PBXGroup;
 			children = (
 				4FF4DD342D676E4800760281 /* Mojigai.entitlements */,
@@ -318,7 +318,7 @@
 			path = Mojigai;
 			sourceTree = "<group>";
 		};
-		D56A130822BB9D2E0083E2B9 /* MojiGaiTests */ = {
+		D56A130822BB9D2E0083E2B9 /* MojigaiTests */ = {
 			isa = PBXGroup;
 			children = (
 				D56A130922BB9D2E0083E2B9 /* MojiGaiTests.m */,
@@ -327,7 +327,7 @@
 			path = MojigaiTests;
 			sourceTree = "<group>";
 		};
-		D56A131322BB9D2E0083E2B9 /* MojiGaiUITests */ = {
+		D56A131322BB9D2E0083E2B9 /* MojigaiUITests */ = {
 			isa = PBXGroup;
 			children = (
 				D56A131422BB9D2E0083E2B9 /* MojiGaiUITests.m */,
