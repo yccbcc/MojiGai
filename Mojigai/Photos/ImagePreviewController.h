@@ -23,6 +23,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 起始展示的下标
 @property (nonatomic, assign) NSInteger index;
 
+/// 转场来源视图(列表中被点选的缩略图),同时用于计算放大动画的起点
+@property (nonatomic, weak, nullable) UIView *sourceView;
+
 @end
 
 NS_ASSUME_NONNULL_END

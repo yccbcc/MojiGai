@@ -30,18 +30,32 @@
     }
 
     NSMutableArray<YBIBImageData *> *datas = [NSMutableArray array];
+    // 库内部对 projectiveView 为 nil 时仍会截图(得到 {0,0} 上下文),iOS 27 下会直接断言崩溃,
+    // 所以必须保证每个 data 都挂上一个非空的来源视图:优先用列表缩略图,否则用全屏占位视图
+    UIView *sourceView = self.sourceView ?: [self makeFallbackSourceView];
     for (NSString *path in self.imagePaths) {
         YBIBImageData *data = [YBIBImageData new];
         data.imageURL = [NSURL fileURLWithPath:path];
+        data.projectiveView = sourceView;
         [datas addObject:data];
     }
 
     YBImageBrowser *browser = [YBImageBrowser new];
     browser.delegate = self;
+    // 库靠 isStatusBarHidden/statusBarOrientation 隐藏状态栏,iOS 27 上这两个 API 已变成 no-op(只刷废弃日志),直接关掉
+    browser.shouldHideStatusBar = NO;
     browser.dataSourceArray = datas;
     browser.currentPage = self.index;
     [browser showToView:self.view];
     self.browser = browser;
+}
+
+// 无缩略图可当转场来源时的兜底:一个透明占位视图,仅用于避开库的 nil 截图崩溃
+- (UIView *)makeFallbackSourceView {
+    UIView *placeholder = [[UIView alloc] initWithFrame:self.view.bounds];
+    placeholder.backgroundColor = UIColor.clearColor;
+    [self.view addSubview:placeholder];
+    return placeholder;
 }
 
 #pragma mark - YBImageBrowserDelegate

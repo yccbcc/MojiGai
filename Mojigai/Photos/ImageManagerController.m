@@ -143,8 +143,12 @@
     ImagePreviewController *preview = [[ImagePreviewController alloc] init];
     preview.imagePaths = self.imagePaths;
     preview.index = indexPath.item;
+    // 把被点选的缩略图交给预览页:作为放大转场起点(库要求来源视图不能为 nil)
+    UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
+    preview.sourceView = [cell.contentView viewWithTag:999];
     preview.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self presentViewController:preview animated:YES completion:nil];
+    // 展示动画由浏览器自己完成,不再叠加系统 present 动画
+    [self presentViewController:preview animated:NO completion:nil];
 }
 
 #pragma mark - UIDocumentPickerDelegate

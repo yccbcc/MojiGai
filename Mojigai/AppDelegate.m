@@ -7,12 +7,19 @@
 //
 
 #import "AppDelegate.h"
+#import "UIWindow+CurrentWindow.h"
 
 @interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
+
+// UIApplicationDelegate 协议里带着预 scene 时代的可选 window 属性,此处只实现读取:
+// 返回当前前台窗口供第三方库算安全区;不持有窗口,窗口仍由 SceneDelegate 管理
+- (UIWindow *)window {
+    return [UIWindow currentKeyWindow];
+}
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
