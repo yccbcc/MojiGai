@@ -15,7 +15,7 @@ static NSArray<NSString *> *kFileToolProtectedFolders(void) {
     static NSArray *folders;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        folders = @[@"/txts/", @"/images/", @"/videos/", @"/file_app/"];
+        folders = @[@"/txts/", @"/images/", @"/videos/"];
     });
     return folders;
 }

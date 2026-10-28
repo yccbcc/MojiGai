@@ -172,7 +172,7 @@
             NSLog(@"导入图片失败: %@", error);
         } else {
             // 清理导入产生的临时文件(系统可能放在 Documents/Inbox 或 Documents 根目录),避免留孤儿;
-            // 只清理 Documents 下的非业务文件夹,绝不碰 txts/images/videos/file_app 等业务数据
+            // 只清理 Documents 下的非业务文件夹,绝不碰 txts/images/videos 等业务数据
             if ([FileTool isImportedStagingCleanableAtPath:url.path]) {
                 [FileTool deleteAtPath:url.path error:nil];
             }

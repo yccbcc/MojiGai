@@ -60,6 +60,16 @@ UIScrollViewDelegate
     _searchOffset = 0.0;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(fileNotification:) name:@"FileNotification" object:nil];
     [self createUI];
+
+    // 历史遗留清理:旧版导出会往 Documents/file_app 落副本,但沙盒不对外暴露、
+    // app 内也无入口消费该目录,导出后就成了孤儿。现在改为临时目录暂存+导出即删,
+    // 这里一次性删掉旧残留(仅首次进入 Editor 时执行)
+    static BOOL legacyCleaned;
+    if (!legacyCleaned) {
+        legacyCleaned = YES;
+        NSString *docs = [FileTool documentsDirectory];
+        [FileTool deleteAtPath:[docs stringByAppendingPathComponent:@"file_app"] error:nil];
+    }
 }
 
 - (void)dealloc {
@@ -141,7 +151,7 @@ UIScrollViewDelegate
     _textView.text = string;
 
     // 清理导入产生的临时文件(系统可能放在 Documents/Inbox 或 Documents 根目录),避免留孤儿。
-    // 只清理 Documents 下的非业务文件夹(Inbox/根目录临时文件),绝不碰 txts/images/videos/file_app 等业务数据
+    // 只清理 Documents 下的非业务文件夹(Inbox/根目录临时文件),绝不碰 txts/images/videos 等业务数据
     if ([FileTool isImportedStagingCleanableAtPath:filePath]) {
         [FileTool deleteAtPath:filePath error:nil];
     }
@@ -149,28 +159,31 @@ UIScrollViewDelegate
 
 #pragma mark - 保存到"文件"app
 
+// 导出到系统「文件」App:正文先写进临时目录暂存,export picker 把副本落到用户自选位置后,
+// 由 HandleSystemFile 在导出完成/取消时删掉暂存文件,不在沙盒留长期副本(内容仍在编辑器可再次导出)
 - (void)saveToFileClick{
     if (_nameTf.text.length <= 0 || _textView.text.length <= 0) {
         return;
     }
-    NSString *filePath = [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask,YES) objectAtIndex:0];
-    filePath = [NSString stringWithFormat:@"%@/file_app",filePath];
-
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    BOOL isExit = [fileManager fileExistsAtPath:filePath];
-    if (!isExit) {
-        [fileManager createDirectoryAtPath:filePath withIntermediateDirectories:true attributes:nil error:nil];
+    NSString *fileName = _nameTf.text;
+    if (![fileName hasSuffix:@".txt"]) {
+        fileName = [NSString stringWithFormat:@"%@.txt", fileName];
+    }
+    // 暂存到系统临时目录(非法字符/路径分隔符交由 FileTool 清洗)
+    NSString *stageDir = NSTemporaryDirectory();
+    NSString *stagePath = [FileTool resolveChildPath:fileName inDirectory:stageDir create:NO];
+    if (!stagePath) {
+        [TSToast show:@"文件名不合法"];
+        return;
     }
 
-    filePath = [filePath stringByAppendingPathComponent:_nameTf.text];
-    if (![filePath hasSuffix:@".txt"]) {
-        filePath = [NSString stringWithFormat:@"%@.txt",filePath];
+    if (![_textView.text writeToFile:stagePath atomically:true encoding:NSUTF8StringEncoding error:nil]) {
+        [TSToast show:@"导出失败"];
+        return;
     }
-
-    [_textView.text writeToFile:filePath atomically:true encoding:NSUTF8StringEncoding error:nil];
 
     [HandleSystemFile shareInstance].controller = self;
-    [[HandleSystemFile shareInstance] saveToFile:filePath];
+    [[HandleSystemFile shareInstance] saveToFile:stagePath];
 }
 
 #pragma mark - textView代理

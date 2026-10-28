@@ -7,6 +7,7 @@
 //
 
 #import "HandleSystemFile.h"
+#import "FileTool.h"
 
 
 @implementation HandleSystemFile
@@ -32,6 +33,8 @@
         NSLog(@"下载文件要求手机系统版本在11.0以上");
     }
     
+    // 记录暂存文件,导出完成/取消后清掉,不在沙盒留孤儿
+    self.exportStagedPath = filePath;
     UIDocumentPickerViewController *documentPickerVC = [[UIDocumentPickerViewController alloc] initWithURL:[NSURL fileURLWithPath:filePath] inMode:UIDocumentPickerModeExportToService];
     // 设置代理
     documentPickerVC.delegate = self;
@@ -54,13 +57,23 @@
 
 #pragma mark - UIDocumentPickerDelegate
 
+// 清理导出暂存文件(取消也算结束,正文仍在编辑器里可随时再次导出)
+- (void)cleanExportStagedFile {
+    if (self.exportStagedPath.length > 0) {
+        [FileTool deleteAtPath:self.exportStagedPath error:nil];
+        self.exportStagedPath = nil;
+    }
+}
+
 - (void)documentPickerWasCancelled:(UIDocumentPickerViewController *)controller{
     NSLog(@"cancel");
+    [self cleanExportStagedFile];
 }
 
 - (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
     if (controller.documentPickerMode == UIDocumentPickerModeExportToService) {
-        //do some stuff
+        // 导出已完成,副本落到用户自选位置,沙盒里的暂存文件使命结束
+        [self cleanExportStagedFile];
         return;
     }
     // 获取授权：返回 NO 也不代表读不了，不能当门禁（真机对沙盒内文件会返回 NO）
