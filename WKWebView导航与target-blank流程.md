@@ -1,6 +1,6 @@
 # WKWebView 导航流程与 target=_blank 处理
 
-> 适用文件：`Mojigai/WebBrowserView.m`、`Mojigai/UIKit/TSWebView.m`
+> 适用文件：`Mojigai/Web/WebBrowserView.m`、`Mojigai/Web/TSWebView.m`
 > 说明对象：`WKNavigationDelegate` 的 `decidePolicyForNavigationAction` 与 `WKUIDelegate` 的 `createWebViewWithConfiguration` 两个回调，在不同导航场景下的触发时机与关键参数状态。
 
 ---

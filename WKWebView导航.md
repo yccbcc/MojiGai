@@ -1,6 +1,6 @@
 # WKWebView 导航与网页下载全流程
 
-> 适用文件：`Mojigai/WebBrowserView.m`、`Mojigai/UIKit/TSWebView.m`、`Mojigai/Tool/VideoStore.m`、`Mojigai/Tool/VideoDownloadTool.m`
+> 适用文件：`Mojigai/Web/WebBrowserView.m`、`Mojigai/Web/TSWebView.m`、`Mojigai/Store/VideoStore.m`、`Mojigai/Web/VideoDownloadTool.m`
 >
 > 行号基准：HEAD `748826e` 之上、含「iframe 响应误下载 + 销毁时取消下载」两处修复的当前工作区。行号会随改动漂移，**定位以方法名为准**。
 >

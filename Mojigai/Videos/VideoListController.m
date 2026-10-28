@@ -10,6 +10,7 @@
 #import "VideoPreviewController.h"
 #import "VideoMoveController.h"
 #import "VideoStore.h"
+#import "FileTool.h"
 #import "TSToast.h"
 #import <AVFoundation/AVFoundation.h>
 
@@ -172,12 +173,12 @@
             : newBase;
         if ([newName isEqualToString:oldName]) return;   // 名称没变
         NSString *newPath = [[VideoStore folderPath:self.folderName] stringByAppendingPathComponent:newName];
-        if ([[NSFileManager defaultManager] fileExistsAtPath:newPath]) {
+        if ([FileTool existsAtPath:newPath]) {
             [TSToast show:@"已存在同名文件"];
             return;
         }
         NSError *err = nil;
-        if ([[NSFileManager defaultManager] moveItemAtPath:path toPath:newPath error:&err]) {
+        if ([FileTool moveFromPath:path toPath:newPath error:&err]) {
             [self removeThumbForPath:path];   // 清理旧路径封面缓存(路径 hash 已变)
             self.videoPaths = [[VideoStore videoPathsInFolder:self.folderName] mutableCopy];
             [self.collectionView reloadData];
@@ -264,7 +265,7 @@
     UIImage *cached = [self.thumbCache objectForKey:path];
     if (cached) return cached;
     NSString *diskPath = [self thumbDiskPathForPath:path];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:diskPath]) {
+    if ([FileTool existsAtPath:diskPath]) {
         UIImage *img = [UIImage imageWithContentsOfFile:diskPath];
         if (img) {
             [self.thumbCache setObject:img forKey:path];
@@ -275,16 +276,16 @@
 }
 
 - (NSString *)thumbDiskPathForPath:(NSString *)path {
-    NSString *dir = [[[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] firstObject].path stringByAppendingPathComponent:@"VideoThumbs"];
-    [[NSFileManager defaultManager] createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
+    NSString *dir = [[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] firstObject].path;
+    dir = [FileTool ensureDirectory:[dir stringByAppendingPathComponent:@"VideoThumbs"]];
     return [dir stringByAppendingPathComponent:[NSString stringWithFormat:@"%lu.jpg", (unsigned long)[path hash]]];
 }
 
 // 删除某视频路径对应的封面缓存(磁盘文件 + 内存缓存),避免重命名/删除后残留孤儿封面
 - (void)removeThumbForPath:(NSString *)path {
     NSString *diskPath = [self thumbDiskPathForPath:path];
-    if ([[NSFileManager defaultManager] fileExistsAtPath:diskPath]) {
-        [[NSFileManager defaultManager] removeItemAtPath:diskPath error:nil];
+    if ([FileTool existsAtPath:diskPath]) {
+        [FileTool deleteAtPath:diskPath error:nil];
     }
     [self.thumbCache removeObjectForKey:path];
 }

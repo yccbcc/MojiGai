@@ -1,4 +1,7 @@
 ${PODS_ROOT}/Target Support Files/Pods-Mojigai/Pods-Mojigai-frameworks.sh
+${BUILT_PRODUCTS_DIR}/SDWebImage/SDWebImage.framework
+${BUILT_PRODUCTS_DIR}/YBImageBrowser/YBImageBrowser.framework
+${BUILT_PRODUCTS_DIR}/YYImage/YYImage.framework
 ${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full/ffmpegkit.framework/ffmpegkit
 ${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full/libavcodec.framework/libavcodec
 ${PODS_XCFRAMEWORKS_BUILD_DIR}/ffmpeg-kit-ios-full/libavdevice.framework/libavdevice

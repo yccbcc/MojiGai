@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		39AFB6CD262018560023AB49 /* HandleSystemFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 39AFB6CB262018550023AB49 /* HandleSystemFile.m */; };
 		4F9EB5AE2A9893B9007E213E /* ReadViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9EB5AD2A9893B9007E213E /* ReadViewController.m */; };
-		4F9EB5B12A989450007E213E /* DCFileTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9EB5B02A989450007E213E /* DCFileTool.m */; };
+		4F9EB5B12A989450007E213E /* TxtStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9EB5B02A989450007E213E /* TxtStore.m */; };
 		4F9EB5B42A98A23D007E213E /* PageController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9EB5B32A98A23D007E213E /* PageController.m */; };
 		4F9EB5C22A9893B9007E213E /* TextReplaceManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9EB5C12A9893B9007E213E /* TextReplaceManager.m */; };
 		4F9EB5C52A9893B9007E213E /* HTMLTextTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 4F9EB5C42A9893B9007E213E /* HTMLTextTool.m */; };
@@ -27,10 +27,9 @@
 		CD12000000000000000000E4 /* VideoPreviewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000D7 /* VideoPreviewController.m */; };
 		CD12000000000000000000E5 /* VideoMoveController.m in Sources */ = {isa = PBXBuildFile; fileRef = CD12000000000000000000DA /* VideoMoveController.m */; };
 		CW00000000000000000000F3 /* UIWindow+CurrentWindow.m in Sources */ = {isa = PBXBuildFile; fileRef = CW00000000000000000000F2 /* UIWindow+CurrentWindow.m */; };
-		D53ABE752583803F006C45E1 /* ReatTxtManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D53ABE742583803F006C45E1 /* ReatTxtManager.m */; };
+		D53ABE752583803F006C45E1 /* ReadTxtManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D53ABE742583803F006C45E1 /* ReadTxtManager.m */; };
 		D56A12F222BB9D2C0083E2B9 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A12F122BB9D2C0083E2B9 /* AppDelegate.m */; };
 		D56A12F522BB9D2C0083E2B9 /* EditorController.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A12F422BB9D2C0083E2B9 /* EditorController.m */; };
-		D56A12F822BB9D2C0083E2B9 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D56A12F622BB9D2C0083E2B9 /* Main.storyboard */; };
 		D56A12FA22BB9D2E0083E2B9 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D56A12F922BB9D2E0083E2B9 /* Assets.xcassets */; };
 		D56A12FD22BB9D2E0083E2B9 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D56A12FB22BB9D2E0083E2B9 /* LaunchScreen.storyboard */; };
 		D56A130022BB9D2E0083E2B9 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D56A12FF22BB9D2E0083E2B9 /* main.m */; };
@@ -39,6 +38,7 @@
 		D56A132322BB9D3B0083E2B9 /* redImage.png in Resources */ = {isa = PBXBuildFile; fileRef = D56A132222BB9D3B0083E2B9 /* redImage.png */; };
 		D5FFCAB1231D047800B965DA /* TSWebView.m in Sources */ = {isa = PBXBuildFile; fileRef = D5FFCAB0231D047800B965DA /* TSWebView.m */; };
 		DL12000000000000000000A3 /* M3U8DownloadController.m in Sources */ = {isa = PBXBuildFile; fileRef = DL12000000000000000000A2 /* M3U8DownloadController.m */; };
+		FT12000000000000000000E2 /* FileTool.m in Sources */ = {isa = PBXBuildFile; fileRef = FT12000000000000000000D2 /* FileTool.m */; };
 		MC0000000000000000000C03 /* MainController.m in Sources */ = {isa = PBXBuildFile; fileRef = MC0000000000000000000C02 /* MainController.m */; };
 		SC0000000000000000000D03 /* SourceController.m in Sources */ = {isa = PBXBuildFile; fileRef = SC0000000000000000000D02 /* SourceController.m */; };
 		SD00000000000000000000E3 /* SceneDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = SD00000000000000000000E2 /* SceneDelegate.m */; };
@@ -68,8 +68,8 @@
 		39AFB6CC262018560023AB49 /* HandleSystemFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HandleSystemFile.h; sourceTree = "<group>"; };
 		4F9EB5AC2A9893B9007E213E /* ReadViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadViewController.h; sourceTree = "<group>"; };
 		4F9EB5AD2A9893B9007E213E /* ReadViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadViewController.m; sourceTree = "<group>"; };
-		4F9EB5AF2A989450007E213E /* DCFileTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DCFileTool.h; sourceTree = "<group>"; };
-		4F9EB5B02A989450007E213E /* DCFileTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DCFileTool.m; sourceTree = "<group>"; };
+		4F9EB5AF2A989450007E213E /* TxtStore.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TxtStore.h; sourceTree = "<group>"; };
+		4F9EB5B02A989450007E213E /* TxtStore.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TxtStore.m; sourceTree = "<group>"; };
 		4F9EB5B22A98A23D007E213E /* PageController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PageController.h; sourceTree = "<group>"; };
 		4F9EB5B32A98A23D007E213E /* PageController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PageController.m; sourceTree = "<group>"; };
 		4F9EB5C02A9893B9007E213E /* TextReplaceManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TextReplaceManager.h; sourceTree = "<group>"; };
@@ -84,8 +84,8 @@
 		4F9EB5D32A9893B9007E213E /* ImageManagerController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImageManagerController.m; sourceTree = "<group>"; };
 		4F9EB5D42A9893B9007E213E /* ImagePreviewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImagePreviewController.h; sourceTree = "<group>"; };
 		4F9EB5D52A9893B9007E213E /* ImagePreviewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ImagePreviewController.m; sourceTree = "<group>"; };
-		4FDC45EE307CCDA300AD3894 /* ConvertVideoFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConvertVideoFormat.h; path = Mojigai/Tool/ConvertVideoFormat.h; sourceTree = SOURCE_ROOT; };
-		4FDC45EF307CCDA300AD3894 /* ConvertVideoFormat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ConvertVideoFormat.m; path = Mojigai/Tool/ConvertVideoFormat.m; sourceTree = SOURCE_ROOT; };
+		4FDC45EE307CCDA300AD3894 /* ConvertVideoFormat.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = ConvertVideoFormat.h; path = Mojigai/Web/ConvertVideoFormat.h; sourceTree = SOURCE_ROOT; };
+		4FDC45EF307CCDA300AD3894 /* ConvertVideoFormat.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = ConvertVideoFormat.m; path = Mojigai/Web/ConvertVideoFormat.m; sourceTree = SOURCE_ROOT; };
 		4FF4DD342D676E4800760281 /* Mojigai.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Mojigai.entitlements; sourceTree = "<group>"; };
 		6BF792DADDAA4F30713DA454 /* Pods-Mojigai.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Mojigai.release.xcconfig"; path = "Target Support Files/Pods-Mojigai/Pods-Mojigai.release.xcconfig"; sourceTree = "<group>"; };
 		88C46991F4C95F49A6E4D6DE /* Pods_Mojigai.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Mojigai.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -106,14 +106,13 @@
 		CD12000000000000000000DA /* VideoMoveController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VideoMoveController.m; sourceTree = "<group>"; };
 		CW00000000000000000000F1 /* UIWindow+CurrentWindow.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIWindow+CurrentWindow.h"; sourceTree = "<group>"; };
 		CW00000000000000000000F2 /* UIWindow+CurrentWindow.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIWindow+CurrentWindow.m"; sourceTree = "<group>"; };
-		D53ABE732583803F006C45E1 /* ReatTxtManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReatTxtManager.h; sourceTree = "<group>"; };
-		D53ABE742583803F006C45E1 /* ReatTxtManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReatTxtManager.m; sourceTree = "<group>"; };
+		D53ABE732583803F006C45E1 /* ReadTxtManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ReadTxtManager.h; sourceTree = "<group>"; };
+		D53ABE742583803F006C45E1 /* ReadTxtManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ReadTxtManager.m; sourceTree = "<group>"; };
 		D56A12ED22BB9D2C0083E2B9 /* Mojigai.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Mojigai.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D56A12F022BB9D2C0083E2B9 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D56A12F122BB9D2C0083E2B9 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D56A12F322BB9D2C0083E2B9 /* EditorController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EditorController.h; sourceTree = "<group>"; };
 		D56A12F422BB9D2C0083E2B9 /* EditorController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EditorController.m; sourceTree = "<group>"; };
-		D56A12F722BB9D2C0083E2B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D56A12F922BB9D2E0083E2B9 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D56A12FC22BB9D2E0083E2B9 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		D56A12FE22BB9D2E0083E2B9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -129,6 +128,8 @@
 		D5FFCAB0231D047800B965DA /* TSWebView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TSWebView.m; sourceTree = "<group>"; };
 		DL12000000000000000000A1 /* M3U8DownloadController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = M3U8DownloadController.h; sourceTree = "<group>"; };
 		DL12000000000000000000A2 /* M3U8DownloadController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = M3U8DownloadController.m; sourceTree = "<group>"; };
+		FT12000000000000000000D1 /* FileTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = FileTool.h; sourceTree = "<group>"; };
+		FT12000000000000000000D2 /* FileTool.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = FileTool.m; sourceTree = "<group>"; };
 		MC0000000000000000000C01 /* MainController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MainController.h; sourceTree = "<group>"; };
 		MC0000000000000000000C02 /* MainController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MainController.m; sourceTree = "<group>"; };
 		SC0000000000000000000D01 /* SourceController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SourceController.h; sourceTree = "<group>"; };
@@ -175,20 +176,22 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		4F9EB5AB2A989396007E213E /* Reader */ = {
+		4F9EB5AB2A989396007E213E /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				SC0000000000000000000D01 /* SourceController.h */,
+				SC0000000000000000000D02 /* SourceController.m */,
 				4F9EB5AC2A9893B9007E213E /* ReadViewController.h */,
 				4F9EB5AD2A9893B9007E213E /* ReadViewController.m */,
 				4F9EB5B22A98A23D007E213E /* PageController.h */,
 				4F9EB5B32A98A23D007E213E /* PageController.m */,
-				4F9EB5AF2A989450007E213E /* DCFileTool.h */,
-				4F9EB5B02A989450007E213E /* DCFileTool.m */,
+				4F9EB5AF2A989450007E213E /* TxtStore.h */,
+				4F9EB5B02A989450007E213E /* TxtStore.m */,
 			);
-			path = Reader;
+			path = Source;
 			sourceTree = "<group>";
 		};
-		4F9EB5D62A9893B9007E213E /* Image */ = {
+		4F9EB5D62A9893B9007E213E /* Photos */ = {
 			isa = PBXGroup;
 			children = (
 				4F9EB5D22A9893B9007E213E /* ImageManagerController.h */,
@@ -198,7 +201,7 @@
 				AB12000000000000000000A2 /* PhotoAlbumController.h */,
 				AB12000000000000000000A1 /* PhotoAlbumController.m */,
 			);
-			path = Image;
+			path = Photos;
 			sourceTree = "<group>";
 		};
 		B5D5E349A1B56C591D0FA94F /* Pods */ = {
@@ -225,40 +228,15 @@
 			path = Videos;
 			sourceTree = "<group>";
 		};
-		D53ABE6E25838013006C45E1 /* Tool */ = {
+		D53ABE6F2583801E006C45E1 /* Base */ = {
 			isa = PBXGroup;
 			children = (
-				39AFB6CC262018560023AB49 /* HandleSystemFile.h */,
-				39AFB6CB262018550023AB49 /* HandleSystemFile.m */,
-				D53ABE732583803F006C45E1 /* ReatTxtManager.h */,
-				D53ABE742583803F006C45E1 /* ReatTxtManager.m */,
-				4FDC45EE307CCDA300AD3894 /* ConvertVideoFormat.h */,
-				4FDC45EF307CCDA300AD3894 /* ConvertVideoFormat.m */,
-				4F9EB5C02A9893B9007E213E /* TextReplaceManager.h */,
-				4F9EB5C12A9893B9007E213E /* TextReplaceManager.m */,
-				4F9EB5C32A9893B9007E213E /* HTMLTextTool.h */,
-				4F9EB5C42A9893B9007E213E /* HTMLTextTool.m */,
-				4F9EB5D02A9893B9007E213E /* ImageStore.h */,
-				4F9EB5D12A9893B9007E213E /* ImageStore.m */,
-				CD12000000000000000000D2 /* VideoStore.h */,
-				CD12000000000000000000D1 /* VideoStore.m */,
-				VD11000000000000000000B1 /* VideoDownloadTool.h */,
-				VD11000000000000000000B2 /* VideoDownloadTool.m */,
-			);
-			path = Tool;
-			sourceTree = "<group>";
-		};
-		D53ABE6F2583801E006C45E1 /* UIKit */ = {
-			isa = PBXGroup;
-			children = (
-				D5FFCAAF231D047800B965DA /* TSWebView.h */,
-				D5FFCAB0231D047800B965DA /* TSWebView.m */,
 				4F9EB5C62A9893B9007E213E /* TSToast.h */,
 				4F9EB5C72A9893B9007E213E /* TSToast.m */,
 				CW00000000000000000000F1 /* UIWindow+CurrentWindow.h */,
 				CW00000000000000000000F2 /* UIWindow+CurrentWindow.m */,
 			);
-			path = UIKit;
+			path = Base;
 			sourceTree = "<group>";
 		};
 		D56A12E422BB9D2C0083E2B9 = {
@@ -287,33 +265,23 @@
 			isa = PBXGroup;
 			children = (
 				4FF4DD342D676E4800760281 /* Mojigai.entitlements */,
-				4F9EB5AB2A989396007E213E /* Reader */,
-				4F9EB5D62A9893B9007E213E /* Image */,
-				CD12000000000000000000A0 /* Videos */,
-				D53ABE6F2583801E006C45E1 /* UIKit */,
-				D53ABE6E25838013006C45E1 /* Tool */,
-				D56A132222BB9D3B0083E2B9 /* redImage.png */,
 				D56A12F022BB9D2C0083E2B9 /* AppDelegate.h */,
 				D56A12F122BB9D2C0083E2B9 /* AppDelegate.m */,
 				SD00000000000000000000E1 /* SceneDelegate.h */,
 				SD00000000000000000000E2 /* SceneDelegate.m */,
-				D56A12F322BB9D2C0083E2B9 /* EditorController.h */,
-				D56A12F422BB9D2C0083E2B9 /* EditorController.m */,
-				MC0000000000000000000C01 /* MainController.h */,
-				MC0000000000000000000C02 /* MainController.m */,
-				SC0000000000000000000D01 /* SourceController.h */,
-				SC0000000000000000000D02 /* SourceController.m */,
-				WB12000000000000000000F1 /* WebBrowserView.h */,
-				WB12000000000000000000F2 /* WebBrowserView.m */,
-				DL12000000000000000000A1 /* M3U8DownloadController.h */,
-				DL12000000000000000000A2 /* M3U8DownloadController.m */,
-				AC0000000000000000000B01 /* AccessControlController.h */,
-				AC0000000000000000000B02 /* AccessControlController.m */,
-				D56A12F622BB9D2C0083E2B9 /* Main.storyboard */,
+				D56A12FF22BB9D2E0083E2B9 /* main.m */,
+				D56A12FE22BB9D2E0083E2B9 /* Info.plist */,
 				D56A12F922BB9D2E0083E2B9 /* Assets.xcassets */,
 				D56A12FB22BB9D2E0083E2B9 /* LaunchScreen.storyboard */,
-				D56A12FE22BB9D2E0083E2B9 /* Info.plist */,
-				D56A12FF22BB9D2E0083E2B9 /* main.m */,
+				D56A132222BB9D3B0083E2B9 /* redImage.png */,
+				D53ABE6F2583801E006C45E1 /* Base */,
+				MZ12000000000000000000A0 /* Main */,
+				WBG1200000000000000000A0 /* Web */,
+				ST12000000000000000000A0 /* Store */,
+				ED12000000000000000000A0 /* Editor */,
+				CD12000000000000000000A0 /* Videos */,
+				4F9EB5D62A9893B9007E213E /* Photos */,
+				4F9EB5AB2A989396007E213E /* Source */,
 			);
 			path = Mojigai;
 			sourceTree = "<group>";
@@ -334,6 +302,64 @@
 				D56A131622BB9D2E0083E2B9 /* Info.plist */,
 			);
 			path = MojigaiUITests;
+			sourceTree = "<group>";
+		};
+		ED12000000000000000000A0 /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+				D56A12F322BB9D2C0083E2B9 /* EditorController.h */,
+				D56A12F422BB9D2C0083E2B9 /* EditorController.m */,
+				4F9EB5C02A9893B9007E213E /* TextReplaceManager.h */,
+				4F9EB5C12A9893B9007E213E /* TextReplaceManager.m */,
+				39AFB6CC262018560023AB49 /* HandleSystemFile.h */,
+				39AFB6CB262018550023AB49 /* HandleSystemFile.m */,
+				D53ABE732583803F006C45E1 /* ReadTxtManager.h */,
+				D53ABE742583803F006C45E1 /* ReadTxtManager.m */,
+			);
+			path = Editor;
+			sourceTree = "<group>";
+		};
+		MZ12000000000000000000A0 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				AC0000000000000000000B01 /* AccessControlController.h */,
+				AC0000000000000000000B02 /* AccessControlController.m */,
+				MC0000000000000000000C01 /* MainController.h */,
+				MC0000000000000000000C02 /* MainController.m */,
+			);
+			path = Main;
+			sourceTree = "<group>";
+		};
+		ST12000000000000000000A0 /* Store */ = {
+			isa = PBXGroup;
+			children = (
+				4F9EB5D02A9893B9007E213E /* ImageStore.h */,
+				4F9EB5D12A9893B9007E213E /* ImageStore.m */,
+				FT12000000000000000000D1 /* FileTool.h */,
+				FT12000000000000000000D2 /* FileTool.m */,
+				CD12000000000000000000D2 /* VideoStore.h */,
+				CD12000000000000000000D1 /* VideoStore.m */,
+			);
+			path = Store;
+			sourceTree = "<group>";
+		};
+		WBG1200000000000000000A0 /* Web */ = {
+			isa = PBXGroup;
+			children = (
+				WB12000000000000000000F1 /* WebBrowserView.h */,
+				WB12000000000000000000F2 /* WebBrowserView.m */,
+				DL12000000000000000000A1 /* M3U8DownloadController.h */,
+				DL12000000000000000000A2 /* M3U8DownloadController.m */,
+				D5FFCAAF231D047800B965DA /* TSWebView.h */,
+				D5FFCAB0231D047800B965DA /* TSWebView.m */,
+				4F9EB5C32A9893B9007E213E /* HTMLTextTool.h */,
+				4F9EB5C42A9893B9007E213E /* HTMLTextTool.m */,
+				VD11000000000000000000B1 /* VideoDownloadTool.h */,
+				VD11000000000000000000B2 /* VideoDownloadTool.m */,
+				4FDC45EE307CCDA300AD3894 /* ConvertVideoFormat.h */,
+				4FDC45EF307CCDA300AD3894 /* ConvertVideoFormat.m */,
+			);
+			path = Web;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -445,7 +471,6 @@
 				D56A12FD22BB9D2E0083E2B9 /* LaunchScreen.storyboard in Resources */,
 				D56A132322BB9D3B0083E2B9 /* redImage.png in Resources */,
 				D56A12FA22BB9D2E0083E2B9 /* Assets.xcassets in Resources */,
-				D56A12F822BB9D2C0083E2B9 /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -474,13 +499,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Mojigai/Pods-Mojigai-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Mojigai/Pods-Mojigai-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -523,9 +544,9 @@
 				DL12000000000000000000A3 /* M3U8DownloadController.m in Sources */,
 				AC0000000000000000000B03 /* AccessControlController.m in Sources */,
 				4F9EB5AE2A9893B9007E213E /* ReadViewController.m in Sources */,
-				D53ABE752583803F006C45E1 /* ReatTxtManager.m in Sources */,
+				D53ABE752583803F006C45E1 /* ReadTxtManager.m in Sources */,
 				39AFB6CD262018560023AB49 /* HandleSystemFile.m in Sources */,
-				4F9EB5B12A989450007E213E /* DCFileTool.m in Sources */,
+				4F9EB5B12A989450007E213E /* TxtStore.m in Sources */,
 				D56A130022BB9D2E0083E2B9 /* main.m in Sources */,
 				D5FFCAB1231D047800B965DA /* TSWebView.m in Sources */,
 				D56A12F222BB9D2C0083E2B9 /* AppDelegate.m in Sources */,
@@ -541,6 +562,7 @@
 				4F9EB5D92A9893B9007E213E /* ImagePreviewController.m in Sources */,
 				AB12000000000000000000A3 /* PhotoAlbumController.m in Sources */,
 				CD12000000000000000000E1 /* VideoStore.m in Sources */,
+				FT12000000000000000000E2 /* FileTool.m in Sources */,
 				VD11000000000000000000B3 /* VideoDownloadTool.m in Sources */,
 				CD12000000000000000000E2 /* VideoCollectionController.m in Sources */,
 				CD12000000000000000000E3 /* VideoListController.m in Sources */,
@@ -581,14 +603,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		D56A12F622BB9D2C0083E2B9 /* Main.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D56A12F722BB9D2C0083E2B9 /* Base */,
-			);
-			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
 		D56A12FB22BB9D2E0083E2B9 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -785,7 +799,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.lexin.MojiGaiTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MojiGai.app/MojiGai";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mojigai.app/Mojigai";
 			};
 			name = Debug;
 		};
@@ -804,7 +818,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.lexin.MojiGaiTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MojiGai.app/MojiGai";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Mojigai.app/Mojigai";
 			};
 			name = Release;
 		};
@@ -822,7 +836,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.lexin.MojiGaiUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = MojiGai;
+				TEST_TARGET_NAME = Mojigai;
 			};
 			name = Debug;
 		};
@@ -840,7 +854,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.lexin.MojiGaiUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = MojiGai;
+				TEST_TARGET_NAME = Mojigai;
 			};
 			name = Release;
 		};
