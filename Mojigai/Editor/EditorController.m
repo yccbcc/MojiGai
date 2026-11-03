@@ -292,10 +292,34 @@ UIScrollViewDelegate
 
 #pragma mark - 内嵌网页(统一使用 window 上的全局网页视图)
 
+// 追加外部内容到文本框:供 WebBrowserView 的 copy 按钮回调。
+// 从 Main / Source 进入时是刚 push 的新实例,view 已随 push 加载;保险起见仍强制加载一次。
+- (void)appendText:(NSString *)text {
+    if (text.length == 0) {
+        return;
+    }
+    if (!self.isViewLoaded) {
+        (void)self.view; // 触发 viewDidLoad/createUI,确保 _textView 已创建
+    }
+    NSString *current = _textView.text ?: @"";
+    // 已有内容时以换行分隔,避免与旧文本粘连;空文本框直接写入。
+    NSString *combined = current.length > 0 ? [NSString stringWithFormat:@"%@\n%@", current, text] : text;
+    _textView.text = combined;
+    // 滚动到最底部,方便查看刚追加的文本(几何上滚到底,无需按字符串长度算 NSRange)。
+    // 推迟到下一轮 runloop,等 text 赋值触发的布局算出准确 contentSize 后再滚;直接到位,不用动画。
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CGFloat maxY = self->_textView.contentSize.height - self->_textView.bounds.size.height;
+        if (maxY > 0) {
+            [self->_textView setContentOffset:CGPointMake(0, maxY) animated:NO];
+        }
+    });
+    [TSToast show:@"追加成功"];
+}
+
 // 打开网页:直接显示挂到 key window 的全局 WebBrowserView(单实例,关闭再开保留原网页)
 - (void)webClick {
     [self.view endEditing:YES];
-    [WebBrowserView showOnWindow];
+    [WebBrowserView showOnWindowWithEntry:WebOpenEntryEditor];
 }
 
 #pragma mark - tool

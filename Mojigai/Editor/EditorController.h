@@ -16,6 +16,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface EditorController : UIViewController
 
+/// 把外部内容(如网页 copy)追加到文本框末尾:已有内容时以换行分隔,并滚动到底部。
+- (void)appendText:(NSString *)text;
+
 @end
 
 NS_ASSUME_NONNULL_END

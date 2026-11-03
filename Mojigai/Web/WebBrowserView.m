@@ -17,6 +17,7 @@
 #import "M3U8DownloadController.h"
 #import "TSToast.h"
 #import "UIWindow+CurrentWindow.h"
+#import "EditorController.h"
 
 @interface WebBrowserView () <WKUIDelegate, WKNavigationDelegate, WKDownloadDelegate, UIGestureRecognizerDelegate>
 @property (nonatomic, strong) TSWebView *wkWeb;
@@ -259,6 +260,16 @@ static WebBrowserView *sSharedBrowser = nil;
     }
 }
 
++ (void)showOnWindowWithEntry:(WebOpenEntry)entry {
+    [WebBrowserView sharedBrowser].openEntry = entry;
+    [WebBrowserView showOnWindow];
+}
+
++ (void)showOnWindowWithURL:(NSString *)urlString entry:(WebOpenEntry)entry {
+    [WebBrowserView sharedBrowser].openEntry = entry;
+    [WebBrowserView showOnWindowWithURL:urlString];
+}
+
 #pragma mark - 首次加载
 
 - (void)loadSavedURLIfNeeded {
@@ -395,12 +406,57 @@ static WebBrowserView *sSharedBrowser = nil;
 }
 
 - (void)copyClick:(UIButton *)btn {
-    if (self.resultString.length > 0) {
-        [UIPasteboard generalPasteboard].string = self.resultString;
-        [TSToast show:@"已复制"];
-    } else {
+    if (self.resultString.length == 0) {
         [TSToast show:@"暂无内容"];
+        return;
     }
+
+    // 导航控制器即 window 根控制器(Main / Source / Editor 都 push 在其上,网页视图挂在 window 顶层)。
+    // 取不到根导航控制器或类型不符时不跳转,避免强转崩溃。
+    UIViewController *root = [UIWindow currentKeyWindow].rootViewController;
+    if (![root isKindOfClass:UINavigationController.class]) {
+        return;
+    }
+    UINavigationController *nav = (UINavigationController *)root;
+
+    // 先关闭网页(hide 移出 window,实例与历史保留),再执行跳转与追加,让跳转过程对用户可见。
+    [self hide];
+
+    NSString *text = self.resultString;
+    switch (self.openEntry) {
+        case WebOpenEntryEditor: {
+            // 入口是 Editor:顶层通常已是 Editor,直接追加;异常回退为新建并 push。
+            UIViewController *top = nav.topViewController;
+            if ([top isKindOfClass:EditorController.class]) {
+                [(EditorController *)top appendText:text];
+            } else {
+                [self pushEditorOnNav:nav text:text];
+            }
+            break;
+        }
+        case WebOpenEntrySource: {
+            // 入口是 Source:先弹掉 Source(回到主页),再打开 Editor 追加。
+            if (nav.viewControllers.count > 1) {
+                [nav popViewControllerAnimated:NO];
+            }
+            [self pushEditorOnNav:nav text:text];
+            break;
+        }
+        case WebOpenEntryMain:
+        default: {
+            // 入口是主页:直接打开 Editor 追加。
+            [self pushEditorOnNav:nav text:text];
+            break;
+        }
+    }
+}
+
+// 新建 EditorController 并 push,随后把网页内容追加进文本框。
+- (void)pushEditorOnNav:(UINavigationController *)nav text:(NSString *)text {
+    EditorController *ed = [[EditorController alloc] init];
+    ed.title = @"Editor";
+    [nav pushViewController:ed animated:NO];
+    [ed appendText:text];
 }
 
 // 刷新(下拉刷新触发;同时清空捕获的 m3u8 列表)
@@ -817,6 +873,12 @@ static WebBrowserView *sSharedBrowser = nil;
 - (void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation {
     // 提交即记录——前进/后退到缓存页也可能不触发 didFinishNavigation,这里兜底
     [self recordLastURL:webView.URL.absoluteString];
+    // 新页面开始提交时清空上一页残留的正文缓存:WebBrowserView 是常驻单例,
+    // resultString/pageHTMLString 不随导航重置会残留上一页内容。若新页 innerText 为空,
+    // didFinishNavigation 里的非空判断会跳过覆盖,copy 就会把「上一次内容」带过去。清空后
+    // 由随后的 didFinishNavigation 重新填充;填充前点 copy 则安全地提示「暂无内容」。
+    self.resultString = nil;
+    self.pageHTMLString = nil;
 }
 
 - (void)webView:(WKWebView *)webView didFinishNavigation:(WKNavigation *)navigation {

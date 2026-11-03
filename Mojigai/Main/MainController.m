@@ -184,7 +184,7 @@
             break;
         }
         case 4: { // Web:直接挂到 window 显示全局网页视图(不 push 控制器)
-            [WebBrowserView showOnWindow];
+            [WebBrowserView showOnWindowWithEntry:WebOpenEntryMain];
             break;
         }
         default:

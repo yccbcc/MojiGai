@@ -85,7 +85,7 @@
     NSString *key = _mArr[indexPath.row][@"key"];
     if ([key hasPrefix:@"http"]) {
         // http 链接(可能是文本网页或视频网页)统一交给全局网页视图
-        [WebBrowserView showOnWindowWithURL:_mArr[indexPath.row][@"key"]];
+        [WebBrowserView showOnWindowWithURL:_mArr[indexPath.row][@"key"] entry:WebOpenEntrySource];
     } else {
         ReadViewController *vc = [[ReadViewController alloc] initWithTransitionStyle:UIPageViewControllerTransitionStyleScroll navigationOrientation:UIPageViewControllerNavigationOrientationHorizontal options:@{}];
         vc.row = (int)indexPath.row;

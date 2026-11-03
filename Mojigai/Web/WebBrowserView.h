@@ -10,12 +10,22 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// 打开网页的入口:决定「copy」按钮把内容追加到 Editor 时的跳转路径。
+typedef NS_ENUM(NSInteger, WebOpenEntry) {
+    WebOpenEntryMain   = 0, // 主页进入:打开 Editor 并追加
+    WebOpenEntrySource = 1, // Source 进入:关闭 Source,打开 Editor 并追加
+    WebOpenEntryEditor = 2, // Editor 进入:直接向当前 Editor 追加
+};
+
 /// 可复用的网页浏览视图:内含顶部操作行 + WKWebView + 下拉刷新 + 右滑返回网页 + m3u8 下载。
 /// 全 app 共用单例,挂到 key window 显示;Editor / Main / Source 打开的是同一个实例,保留网页状态。
 @interface WebBrowserView : UIView
 
 /// 关闭回调(右滑无上一页时触发;单例模式下默认调用 hide)。
 @property (nonatomic, copy, nullable) void (^onClose)(void);
+
+/// 当前打开网页的入口,由 showOnWindow 系列方法写入;copy 按钮据此决定跳转行为。
+@property (nonatomic, assign) WebOpenEntry openEntry;
 
 /// 全局单例网页视图(Editor / Main 共用同一实例,打开关闭保留网页状态)。
 + (instancetype)sharedBrowser;
@@ -29,6 +39,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 挂到 window 显示并加载指定网址(用于从外部传入具体链接,如 Source 里的 http 条目)。
 + (void)showOnWindowWithURL:(NSString *)urlString;
+
+/// 带入口标识的显示:记录打开网页的入口,供 copy 按钮决定把内容追加到 Editor 的跳转路径。
++ (void)showOnWindowWithEntry:(WebOpenEntry)entry;
+
+/// 带入口标识的显示并加载指定网址。
++ (void)showOnWindowWithURL:(NSString *)urlString entry:(WebOpenEntry)entry;
 
 /// 从 window 移除(隐藏),实例保留。
 - (void)hide;
