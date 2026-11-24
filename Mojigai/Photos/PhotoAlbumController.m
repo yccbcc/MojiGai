@@ -42,9 +42,9 @@
 - (void)configCollectionView {
     CGFloat screenW = UIScreen.mainScreen.bounds.size.width;
     CGFloat margin = 12;
-    NSInteger columns = 2;
+    NSInteger columns = 4;   // 文件夹页一行 4 个
     CGFloat itemW = floor((screenW - margin * (columns + 1)) / columns);
-    CGFloat itemH = itemW * 0.72;
+    CGFloat itemH = itemW;   // 4 列时单元变窄,改用正方形保证图标与名称都能完整显示
 
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
     layout.itemSize = CGSizeMake(itemW, itemH);
@@ -52,7 +52,8 @@
     layout.minimumInteritemSpacing = margin;
     layout.sectionInset = UIEdgeInsetsMake(margin, margin, margin, margin);
 
-    UICollectionView *cv = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, screenW, self.view.bounds.size.height) collectionViewLayout:layout];
+    UICollectionView *cv = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+    cv.translatesAutoresizingMaskIntoConstraints = NO;
     cv.backgroundColor = UIColor.whiteColor;
     cv.dataSource = self;
     cv.delegate = self;
@@ -62,6 +63,16 @@
     [cv registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"AlbumCell"];
     [self.view addSubview:cv];
     self.collectionView = cv;
+
+    // 用 Auto Layout 贴安全区,自动扣除导航栏与底部安全区。
+    // 原来按 viewDidLoad 时的 view 高度写死 frame,导航栏完成后 view 变矮,相册超过一屏时最后一行会被裁掉
+    UILayoutGuide *guide = self.view.safeAreaLayoutGuide;
+    [NSLayoutConstraint activateConstraints:@[
+        [cv.topAnchor constraintEqualToAnchor:guide.topAnchor],
+        [cv.bottomAnchor constraintEqualToAnchor:guide.bottomAnchor],
+        [cv.leadingAnchor constraintEqualToAnchor:guide.leadingAnchor],
+        [cv.trailingAnchor constraintEqualToAnchor:guide.trailingAnchor],
+    ]];
 }
 
 #pragma mark - 事件
@@ -141,7 +152,9 @@
         icon.contentMode = UIViewContentModeCenter;
         [cell.contentView addSubview:icon];
     }
-    icon.frame = CGRectMake(0, 16, cell.contentView.bounds.size.width, 56);
+    CGFloat cellW = cell.contentView.bounds.size.width;
+    CGFloat cellH = cell.contentView.bounds.size.height;
+    icon.frame = CGRectMake(0, cellH * 0.10, cellW, cellH * 0.52);   // 4 列窄单元:图标缩小并保持水平居中
     if (@available(iOS 13.0, *)) {
         icon.image = [[UIImage systemImageNamed:@"folder.fill"] imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         icon.tintColor = [UIColor colorWithRed:0.32f green:0.52f blue:0.90f alpha:1.00f];
@@ -154,11 +167,13 @@
         label = [[UILabel alloc] init];
         label.tag = 1002;
         label.textAlignment = NSTextAlignmentCenter;
-        label.font = [UIFont systemFontOfSize:15 weight:UIFontWeightMedium];
         label.textColor = UIColor.darkGrayColor;
+        label.adjustsFontSizeToFitWidth = YES;
+        label.minimumScaleFactor = 0.7;
         [cell.contentView addSubview:label];
     }
-    label.frame = CGRectMake(8, 72, cell.contentView.bounds.size.width - 16, 24);
+    label.font = [UIFont systemFontOfSize:13 weight:UIFontWeightMedium];
+    label.frame = CGRectMake(2, cellH * 0.66, cellW - 4, cellH * 0.28);
     label.text = self.albumNames[indexPath.item];
     return cell;
 }

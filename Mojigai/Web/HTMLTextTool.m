@@ -8,6 +8,13 @@
 
 #import "HTMLTextTool.h"
 
+// Base64 解码为 UTF-8 明文字符串,失败返回 nil
+static NSString *MojiDecodeBase64(NSString *base64) {
+    NSData *data = [[NSData alloc] initWithBase64EncodedString:base64 options:0];
+    if (!data) return nil;
+    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+}
+
 @implementation HTMLTextTool
 
 + (NSString *)filterHTML:(NSString *)html{
@@ -41,6 +48,26 @@
         }
     }
     return  [marr componentsJoinedByString:@"\n"];
+}
+
++ (NSString *)removePromoBlock:(NSString *)text{
+    NSString *content = text ?: @"";
+    if (content.length == 0) {
+        return content;
+    }
+    // 推广块的首尾标记以 Base64 常量内置,解码后再参与匹配,明文不落在代码与注释里
+    NSString *headMark = MojiDecodeBase64(@"5bm/6ICM5ZGK5LmL77ya5peg6ZmQ5Yi25rap5rap");
+    NSString *tailMark = MojiDecodeBase64(@"Pj4+5p+l55yL5pu05aSa5biW5Li756S+5Yy65Yqo5oCB");
+    if (headMark.length == 0 || tailMark.length == 0) {
+        return content;
+    }
+    // 中间内容惰性匹配跨行,遇到第一个尾标记即停止;尾标记后的省略号允许三个英文点或中文省略号,也没有时同样命中
+    NSString *pattern = [NSString stringWithFormat:@"%@[\\s\\S]*?%@(?:\\.{3}|…{1,2})?", headMark, tailMark];
+    NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:pattern options:0 error:nil];
+    if (!regex) {
+        return content;
+    }
+    return [regex stringByReplacingMatchesInString:content options:0 range:NSMakeRange(0, content.length) withTemplate:@""];
 }
 
 + (NSArray<NSString *> *)extractM3U8URLsFromHTML:(NSString *)html{

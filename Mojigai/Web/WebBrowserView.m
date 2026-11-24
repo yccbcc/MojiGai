@@ -422,7 +422,8 @@ static WebBrowserView *sSharedBrowser = nil;
     // 先关闭网页(hide 移出 window,实例与历史保留),再执行跳转与追加,让跳转过程对用户可见。
     [self hide];
 
-    NSString *text = self.resultString;
+    // copy 出去的正文先去掉推广块(按推广块的首尾标记整段删除)
+    NSString *text = [HTMLTextTool removePromoBlock:self.resultString];
     switch (self.openEntry) {
         case WebOpenEntryEditor: {
             // 入口是 Editor:顶层通常已是 Editor,直接追加;异常回退为新建并 push。

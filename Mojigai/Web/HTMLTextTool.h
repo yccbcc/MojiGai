@@ -8,7 +8,7 @@
 
 /*
  网页 HTML 处理工具
- 把网页 HTML 清洗成纯文本；从 HTML 中提取 m3u8 视频地址
+ 把网页 HTML 清洗成纯文本；从 HTML 中提取 m3u8 视频地址；过滤正文里的推广块
  */
 
 #import <Foundation/Foundation.h>
@@ -22,6 +22,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 用正则从 HTML 中提取 video/source 标签 src 里含 .m3u8 的地址(已还原 HTML 实体,结果去重)
 + (NSArray<NSString *> *)extractM3U8URLsFromHTML:(NSString *)html;
+
+/// 去掉正文中的推广块:按推广块的首尾标记整段删除(标记以 Base64 常量内置,解码后参与匹配)
++ (NSString *)removePromoBlock:(NSString *)text;
 
 @end
 
